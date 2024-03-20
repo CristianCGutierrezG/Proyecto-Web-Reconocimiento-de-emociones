@@ -6,8 +6,15 @@ services:
             - 5432
         environment:
             POSTGRES_DB: ${DB_NAME}
-            POSTGRES_USER: ${DB_USER}.
-            
+            POSTGRES_USER: ${DB_USER}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
         volumes:
             - ./db:/var/lib/postgresql/data
+
+    pgadmin:
+        image: dpage/pgadmin4
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${DB_MAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - 5050:80
