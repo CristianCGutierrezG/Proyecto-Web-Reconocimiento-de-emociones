@@ -22,13 +22,11 @@ const UserSchema = {
     allowNull: false,
     type: DataTypes.STRING
   },
-  // cargo: {
-  //   allowNull: true,
-  //   type: DataTypes.STRING,
-  //   validate: {
-  //     isIn: [['Estudiante', 'Maestro', 'Profesional de la salud']]
-  //   }
-  // }, 
+  role: {
+    allowNull: false,
+    type: DataTypes.STRING,
+    defaultValue: "Estudiante",
+  }, 
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,

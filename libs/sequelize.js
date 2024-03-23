@@ -6,15 +6,14 @@ import { setupModels } from "../database/models/index.js";
 
 const USER = encodeURIComponent(config.dbUser);
 const PASSWORD = encodeURIComponent(config.dbPassword);
-const URL = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${config.dbName}`
+const URI = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${config.dbName}`
 
-const sequelize = new Sequelize(URL,{
+const sequelize = new Sequelize(URI,{
     dialect: 'postgres',
     logging: false
 });
 
 
 setupModels(sequelize)
-sequelize.sync();
 
 export {sequelize}
