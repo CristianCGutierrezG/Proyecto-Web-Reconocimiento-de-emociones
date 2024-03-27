@@ -1,4 +1,4 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
+import { Model, DataTypes} from 'sequelize';
 
 const USER_TABLE = 'users';
 
@@ -36,8 +36,19 @@ const UserSchema = {
 }
 
 class User extends Model {
-  static associate() {
-    // associate
+  static associate(models) {
+    this.hasOne(models.Estudiante, {
+      as: 'estudiante',
+      foreignKey: 'userId'
+    });
+    this.hasOne(models.Profesor, {
+      as: 'profesor',
+      foreignKey: 'userId'
+    });
+    this.hasOne(models.ProSalud, {
+      as: 'proSalud',
+      foreignKey: 'userId'
+    });
   }
 
   static config(sequelize) {
