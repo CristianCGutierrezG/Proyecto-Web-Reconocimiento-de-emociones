@@ -8,20 +8,34 @@ class ProfesoresService {
 
   async create(data) {
     const newProfesor = await sequelize.models.Profesor.create(data, {
-      include: ['user']
+      include: [ 'user' ]
     }); 
     return newProfesor;
   }
 
   async find() {
     const rta = await sequelize.models.Profesor.findAll({
-      include: ['user']
+      include: [ 
+        { 
+          model: sequelize.models.User, 
+          as: 'user',
+          attributes: ['id', 'email', 'role']
+        },
+      ]
     });
     return rta; 
   }
 
   async findOne(id) {
-    const profesor = await sequelize.models.Profesor.findByPk(id);
+    const profesor = await sequelize.models.Profesor.findByPk(id,{
+      include: [ 
+      { 
+        model: sequelize.models.Materias, 
+        as: 'materias',
+        attributes: ['id', 'nombre', 'grupo']
+      }
+      ]  
+    });
     if(!profesor){
       throw boom.notFound('Profesor no encontrado');
     }

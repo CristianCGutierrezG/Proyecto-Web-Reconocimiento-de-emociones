@@ -8,6 +8,7 @@ const codigoInstitucional = Joi.number().integer();
 const userId = Joi.number().integer();
 const email = Joi.string().email();
 const password = Joi.string();
+const role = [ 'Profesor' ];
 
 
 const createProfesorSchema = Joi.object({
@@ -17,7 +18,8 @@ const createProfesorSchema = Joi.object({
   codigoInstitucional: codigoInstitucional.required(),
   user: Joi.object({
     email: email.required(),
-    password: password.required()
+    password: password.required(),
+    role: Joi.string().valid(...role).required()
   })
 });
 

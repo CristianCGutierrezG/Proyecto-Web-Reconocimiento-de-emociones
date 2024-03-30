@@ -6,6 +6,7 @@ function logErrors (err, req, res, next) {
 }
 
 function errorHandler(err, req, res, next) {
+  
   res.status(500).json({
     message: err.message,
     stack: err.stack,
@@ -32,5 +33,16 @@ function ormErrorHandler(err, req, res, next) {
   next(err);
 }
 
+function errorHandlerExistencia(err, req, res, next) {
+  if(err.parent.code === '23503') {
+      return res.status(400).json({
+          statusCode: 400,
+          message: err.parent.detail,
+          err: err.name,
+      });
+  }
+  next(err);
+}
 
-export { logErrors, ormErrorHandler, errorHandler, boomErrorHandler };
+
+export { logErrors, ormErrorHandler, errorHandler, boomErrorHandler, errorHandlerExistencia };

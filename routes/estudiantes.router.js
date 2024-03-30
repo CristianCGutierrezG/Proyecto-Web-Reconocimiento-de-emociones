@@ -29,6 +29,32 @@ router.get('/:id',
   }
 );
 
+router.get('/:id/emociones',
+  validatorHandler(getEstudianteSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const Estudiante = await service.findOneByEmociones(id);
+      res.json(Estudiante);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get('/:id/materias',
+  validatorHandler(getEstudianteSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const Estudiante = await service.findOneByMaterias(id);
+      res.json(Estudiante);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 router.post('/',
   validatorHandler(createEstudianteSchema, 'body'),
   async (req, res, next) => {

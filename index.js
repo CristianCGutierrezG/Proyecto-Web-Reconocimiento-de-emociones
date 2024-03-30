@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import { routerApi } from './routes/index.js';
-import { logErrors, ormErrorHandler, errorHandler, boomErrorHandler } from './middlewares/error.handler.js';
+import { logErrors, ormErrorHandler, errorHandler, boomErrorHandler, errorHandlerExistencia } from './middlewares/error.handler.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,16 +25,14 @@ app.get('/', (req, res) => {
   res.send('Hola mi server en express');
 });
 
-app.get('/nueva-ruta', (req, res) => {
-  res.send('Hola, soy una nueva ruta');
-});
-
 routerApi(app);
 
 app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
+app.use(errorHandlerExistencia);
 app.use(errorHandler);
+
 
 
 app.listen(port, () => {

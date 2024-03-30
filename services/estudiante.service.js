@@ -38,19 +38,64 @@ class EstudiantesService {
 
   async find() {
     const rta = await sequelize.models.Estudiante.findAll({
-      include: ['user']
+      include: [ 
+        { 
+          model: sequelize.models.User, 
+          as: 'user',
+          attributes: ['id', 'email', 'role']
+        },
+      ]
     });
     return rta; 
   }
 
   async findOne(id) {
-    const estudiante = await sequelize.models.Estudiante.findByPk(id);
+    const estudiante = await sequelize.models.Estudiante.findByPk(id, {
+      include: [
+        { 
+          model: sequelize.models.User, 
+          as: 'user',
+          attributes: ['id', 'email', 'role']
+        }
+      ]
+    });
     if(!estudiante){
       throw boom.notFound('Estudiante no encontrado');
     }
     return estudiante;
   }
 
+  async findOneByEmociones(id) {
+    const estudiante = await sequelize.models.Estudiante.findByPk(id, {
+      include: [ 
+      { 
+        model: sequelize.models.Emocion, 
+        as: 'emociones',
+        attributes: ['id', "emocion", "createdAt"]
+      }
+      ]  
+    });
+    if(!estudiante){
+      throw boom.notFound('Estudiante no encontrado');
+    }
+    return estudiante;
+  }
+
+  async findOneByMaterias(id) {
+    const estudiante = await sequelize.models.Estudiante.findByPk(id, {
+      include: [ 
+      { 
+        model: sequelize.models.Materias, 
+        as: 'inscritos',
+        through: {attributes: ['id']}
+      } 
+    ]  
+    });
+    if(!estudiante){
+      throw boom.notFound('Estudiante no encontrado');
+    }
+    return estudiante;
+  }
   async update(id, changes) {
     const estudiante = await this.findOne(id);
     const rta = await estudiante.update(changes);
