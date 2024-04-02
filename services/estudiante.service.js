@@ -7,37 +7,16 @@ class EstudiantesService {
 
   constructor() {}
 
-  // generate() {
-  //   const limit = 100;
-  //   for (let index = 0; index < limit; index++) {
-  //     this.products.push({
-  //       id: faker.datatype.uuid(),
-  //       name: faker.commerce.productName(),
-  //       price: parseInt(faker.commerce.price(), 10),
-  //       image: faker.image.imageUrl(),
-  //       isBlock: faker.datatype.boolean(),
-  //     });
-  //   }
-  // }
-
-  // async create(data) {
-  //   const newProduct = {
-  //     id: faker.datatype.uuid(),
-  //     ...data
-  //   }
-  //   this.products.push(newProduct);
-  //   return newProduct;
-  // }
-
   async create(data) {
     const newEstudiante = await sequelize.models.Estudiante.create(data, {
       include: ['user']
     }); 
+    delete newEstudiante.user.dataValues.password;
     return newEstudiante;
   }
 
-  async find() {
-    const rta = await sequelize.models.Estudiante.findAll({
+  async find(query) {
+    const options = {
       include: [ 
         { 
           model: sequelize.models.User, 
@@ -45,8 +24,14 @@ class EstudiantesService {
           attributes: ['id', 'email', 'role']
         },
       ]
-    });
-    return rta; 
+    };
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset;
+    }
+    const estudiantes = await sequelize.models.Estudiante.findAll(options);
+    return estudiantes;
   }
 
   async findOne(id) {
@@ -104,7 +89,9 @@ class EstudiantesService {
 
   async delete(id) {
     const estudiante = await this.findOne(id);
+    const user = await sequelize.models.User.findByPk(estudiante.user.dataValues.id);
     await estudiante.destroy();
+    await user.destroy();
     return { rta:  true };
   }
 

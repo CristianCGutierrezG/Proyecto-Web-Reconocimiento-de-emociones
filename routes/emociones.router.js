@@ -1,4 +1,6 @@
 import express from 'express';
+import passport from 'passport';
+import { checkRoles } from '../middlewares/auth.handler.js';
 
 import { EmocionService } from '../services/emocion.service.js';
 import { validatorHandler } from './../middlewares/validator.handler.js';
@@ -7,16 +9,21 @@ import { updateEmocionSchema, createEmocionSchema, getEmocionSchema } from '../s
 const router = express.Router();
 const service = new EmocionService();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const emocion = await service.find();
-    res.json(emocion);
-  } catch (error) {
-    next(error);
-  }
+router.get('/', 
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
+  async (req, res, next) => {
+    try {
+      const emocion = await service.find();
+      res.json(emocion);
+    } catch (error) {
+      next(error);
+    }
 });
 
 router.get('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante','Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(getEmocionSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -30,11 +37,13 @@ router.get('/:id',
 );
 
 router.post('/',
+  passport.authenticate('jwt', {session: false}),
   validatorHandler(createEmocionSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
-      const newEmocion = await service.create(body);
+      const user = req.user
+      const newEmocion = await service.create(body, user.sub);
       res.status(201).json(newEmocion);
     } catch (error) {
       next(error);
@@ -43,6 +52,8 @@ router.post('/',
 );
 
 router.patch('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Administrador'),
   validatorHandler(getEmocionSchema, 'params'),
   validatorHandler(updateEmocionSchema, 'body'),
   async (req, res, next) => {
@@ -58,6 +69,8 @@ router.patch('/:id',
 );
 
 router.delete('/:id',
+passport.authenticate('jwt', {session: false}),
+  checkRoles('Administrador'),
   validatorHandler(getEmocionSchema, 'params'),
   async (req, res, next) => {
     try {

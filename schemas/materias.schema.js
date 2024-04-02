@@ -7,12 +7,14 @@ const grupo = Joi.string();
 const profesorId = Joi.number().integer();
 const materiaId = Joi.number().integer();
 const estudianteId = Joi.number().integer();
+const limit = Joi.number().integer();
+const offset = Joi.number().integer();
 
 
 const createMateriasSchema = Joi.object({
   nombre: nombre.required(),
   grupo: grupo.required(),
-  profesorId: profesorId.required()
+  profesorId
   // horario: horario.required(),
 });
 
@@ -28,9 +30,15 @@ const getMateriasSchema = Joi.object({
 });
 
 const addInscripcionSchema = Joi.object({
-  estudianteId: estudianteId.required(),
   materiaId: materiaId.required(),
+  estudianteId
 });
 
-export { createMateriasSchema, updateMateriasSchema, getMateriasSchema, addInscripcionSchema };
+const queryMateriaSchema = Joi.object({
+  limit,
+  offset,
+});
+
+
+export { createMateriasSchema, updateMateriasSchema, getMateriasSchema, queryMateriaSchema,  addInscripcionSchema  };
 

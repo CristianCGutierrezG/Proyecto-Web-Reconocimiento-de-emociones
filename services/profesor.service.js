@@ -10,11 +10,12 @@ class ProfesoresService {
     const newProfesor = await sequelize.models.Profesor.create(data, {
       include: [ 'user' ]
     }); 
+    delete newProfesor.user.dataValues.password;
     return newProfesor;
   }
 
-  async find() {
-    const rta = await sequelize.models.Profesor.findAll({
+  async find(query) {
+    const options = {
       include: [ 
         { 
           model: sequelize.models.User, 
@@ -22,8 +23,14 @@ class ProfesoresService {
           attributes: ['id', 'email', 'role']
         },
       ]
-    });
-    return rta; 
+    };
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset;
+    }
+    const profesor = await sequelize.models.Profesor.findAll(options);
+    return profesor;
   }
 
   async findOne(id) {
@@ -50,7 +57,9 @@ class ProfesoresService {
 
   async delete(id) {
     const profesor = await this.findOne(id);
+    const user = await sequelize.models.User.findByPk(profesor.user.dataValues.id);
     await profesor.destroy();
+    await user.destroy();
     return { rta:  true };
   }
 

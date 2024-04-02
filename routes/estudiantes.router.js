@@ -2,21 +2,31 @@ import express from 'express';
 
 import {EstudiantesService} from '../services/estudiante.service.js'
 import {validatorHandler} from '../middlewares/validator.handler.js'
-import { createEstudianteSchema, updateEstudianteSchema, getEstudianteSchema } from '../schemas/estudiante.schema.js';
+import { createEstudianteSchema, updateEstudianteSchema, getEstudianteSchema, queryEstudianteSchema } from '../schemas/estudiante.schema.js';
+import passport from 'passport';
+import { checkRoles } from '../middlewares/auth.handler.js';
+
 
 const router = express.Router();
 const service = new EstudiantesService();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const estudiante = await service.find();
-    res.json(estudiante);
-  } catch (error) {
-    next(error);
+router.get('/',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
+  validatorHandler(queryEstudianteSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const estudiante = await service.find(req.query);
+      res.status(200).json(estudiante);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -29,7 +39,10 @@ router.get('/:id',
   }
 );
 
+
 router.get('/:id/emociones',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -43,6 +56,8 @@ router.get('/:id/emociones',
 );
 
 router.get('/:id/materias',
+passport.authenticate('jwt', {session: false}),
+checkRoles('Estudiante', 'Profesional de salud', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -56,6 +71,8 @@ router.get('/:id/materias',
 );
 
 router.post('/',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Administrador'),
   validatorHandler(createEstudianteSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -69,6 +86,8 @@ router.post('/',
 );
 
 router.patch('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   validatorHandler(updateEstudianteSchema, 'body'),
   async (req, res, next) => {
@@ -84,6 +103,8 @@ router.patch('/:id',
 );
 
 router.delete('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   async (req, res, next) => {
     try {

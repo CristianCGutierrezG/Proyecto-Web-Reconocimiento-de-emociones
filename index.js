@@ -1,8 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-
+import { checkApiKey } from './middlewares/auth.handler.js'  
 import { routerApi } from './routes/index.js';
 import { logErrors, ormErrorHandler, errorHandler, boomErrorHandler, errorHandlerExistencia } from './middlewares/error.handler.js';
+
+import passport from 'passport';
+import { LocalStrategy } from './utils/auth/strategies/local.strategy.js';
+import { JwtStrategy } from './utils/auth/strategies/jwt.strategy.js';
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -21,7 +26,14 @@ const options = {
 }
 app.use(cors(options));
 
+passport.use(LocalStrategy);
+passport.use(JwtStrategy);
+
 app.get('/', (req, res) => {
+  res.send('Hola mi server en express');
+});
+
+app.get('/nueva-ruta',checkApiKey, (req, res) => {
   res.send('Hola mi server en express');
 });
 

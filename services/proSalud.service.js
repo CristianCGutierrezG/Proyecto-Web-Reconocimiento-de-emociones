@@ -8,7 +8,13 @@ class ProSaludService {
 
   async create(data) {
     const newProSalud = await sequelize.models.ProSalud.create(data, {
-      include: ['user']
+      include: [
+        { 
+          model: sequelize.models.User, 
+          as: 'user',
+          attributes: ['id', 'email', 'role']
+        }
+      ]
     }); 
     return newProSalud;
   }

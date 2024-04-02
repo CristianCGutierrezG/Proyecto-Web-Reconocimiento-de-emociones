@@ -1,22 +1,31 @@
 import express from 'express';
+import passport from 'passport';
+import { checkRoles } from '../middlewares/auth.handler.js';
 
 import { MateriasService } from '../services/materias.service.js'; 
 import { validatorHandler } from './../middlewares/validator.handler.js';
-import { updateMateriasSchema, createMateriasSchema, getMateriasSchema, addInscripcionSchema } from '../schemas/materias.schema.js'; 
+import { updateMateriasSchema, createMateriasSchema, getMateriasSchema, queryMateriaSchema, addInscripcionSchema } from '../schemas/materias.schema.js'; 
 
 const router = express.Router();
 const service = new MateriasService();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const materias = await service.find();
-    res.json(materias);
-  } catch (error) {
-    next(error);
+router.get('/',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Profesor', 'Profesional de salud', 'Administrador'),
+  validatorHandler(queryMateriaSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const materia = await service.find(req.query);
+      res.status(200).json(materia);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(getMateriasSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -30,11 +39,14 @@ router.get('/:id',
 );
 
 router.post('/',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Profesor', 'Administrador'),
   validatorHandler(createMateriasSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
-      const newMaterias = await service.create(body);
+      const user = req.user
+      const newMaterias = await service.create(body, user.sub);
       res.status(201).json(newMaterias);
     } catch (error) {
       next(error);
@@ -43,11 +55,14 @@ router.post('/',
 );
 
 router.post('/add-inscripcion',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Profesor', 'Administrador'),
   validatorHandler(addInscripcionSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
-      const newInscripcion = await service.addInscripcion(body);
+      const user = req.user
+      const newInscripcion = await service.addInscripcion(body, user.sub);
       res.status(201).json(newInscripcion);
     } catch (error) {
       next(error);
@@ -56,6 +71,8 @@ router.post('/add-inscripcion',
 );
 
 router.patch('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Profesor', 'Administrador'),
   validatorHandler(getMateriasSchema, 'params'),
   validatorHandler(updateMateriasSchema, 'body'),
   async (req, res, next) => {
@@ -71,6 +88,8 @@ router.patch('/:id',
 );
 
 router.delete('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Profesor', 'Administrador'),
   validatorHandler(getMateriasSchema, 'params'),
   async (req, res, next) => {
     try {

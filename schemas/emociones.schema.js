@@ -6,7 +6,7 @@ const estudianteId = Joi.number().integer();
 
 const createEmocionSchema = Joi.object({
   emocion: Joi.string().valid(...validEmociones).required(),
-  estudianteId: estudianteId.required()
+  estudianteId
 });
 
 const updateEmocionSchema = Joi.object({

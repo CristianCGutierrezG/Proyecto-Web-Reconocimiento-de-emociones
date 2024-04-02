@@ -8,7 +8,8 @@ const codigoInstitucional = Joi.number().integer();
 const userId = Joi.number().integer();
 const email = Joi.string().email();
 const password = Joi.string();
-
+const limit = Joi.number().integer();
+const offset = Joi.number().integer();
 
 const createEstudianteSchema = Joi.object({
   nombres: nombres.required(),
@@ -33,4 +34,9 @@ const getEstudianteSchema = Joi.object({
   id: id.required(),
 });
 
-export { createEstudianteSchema, updateEstudianteSchema, getEstudianteSchema };
+const queryEstudianteSchema = Joi.object({
+  limit,
+  offset,
+});
+
+export { createEstudianteSchema, updateEstudianteSchema, getEstudianteSchema, queryEstudianteSchema };
