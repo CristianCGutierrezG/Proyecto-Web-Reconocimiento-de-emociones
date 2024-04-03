@@ -13,7 +13,7 @@ class AuthService {
     if (!user) {
       throw boom.unauthorized();
     }
-
+    // console.log(user);
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw boom.unauthorized();
@@ -34,31 +34,59 @@ class AuthService {
     };
   }
 
-  async sendMail(email) {
+  async sendRecovery(email) {
     const user = await service.findByEmail(email);
     if (!user) {
       throw boom.unauthorized();
     }
 
+    const payload = { sub: user.id };
+    const token = jwt.sign(payload, config.jwtRecoverySecret, {
+      expiresIn: '15min',
+    });
+    const link = `https://myfrontend.com/recovery?token=${token}`;
+    await service.update(user.id, { recoveryToken: token });
+    const mail = {
+      from: `${config.emailSender}`,
+      to: `${user.email}`,
+      subject: 'Email para recuperar contraseña',
+      html: `<b>Ingresa a este link para recuperar tu contraseña: ${link}</b>`,
+    };
+
+    const rta = await this.sendMail(mail);
+    return rta;
+  }
+
+  async changePassword(token, newPassword) {
+    try {
+      const payload = jwt.verify(token, config.jwtRecoverySecret);
+      const user = await service.findOne(payload.sub);
+
+      if (user.recoveryToken !== token) {
+        throw boom.unauthorized();
+      }
+
+      const hash = await bcrypt.hash(newPassword, 10);
+      await service.update(user.id, { recoveryToken: null, password: hash });
+      return { message: 'La contraseña fue cambiada' };
+    } catch (error) {
+      throw boom.unauthorized();
+    }
+  }
+
+  async sendMail(infoMail) {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       secure: true, // true for 465, false for other ports
       port: 465,
       auth: {
         user: config.emailSender,
-        pass: config.emailPassword
+        pass: config.emailPassword,
       },
     });
 
-    await transporter.sendMail({
-      from: `${config.emailSender}`, // sender address
-      to: `${user.email}`, // list of receivers
-      subject: 'Nuevo correo de prueba', // Subject line
-      text: 'Estoy usando Nodemailer!', // plain text body
-      html: '<b>Holaaaaaaaaaa!</b>', // html body
-    });
-
-    return { message: 'Correo enviado!' };
+    await transporter.sendMail(infoMail);
+    return { message: 'Mensaje enviado' };
   }
 }
 

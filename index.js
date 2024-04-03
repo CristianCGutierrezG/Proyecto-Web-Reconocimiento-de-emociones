@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { checkApiKey } from './middlewares/auth.handler.js'  
 import { routerApi } from './routes/index.js';
-import { logErrors, ormErrorHandler, errorHandler, boomErrorHandler, errorHandlerExistencia } from './middlewares/error.handler.js';
+import { logErrors, ormErrorHandler, errorHandler, boomErrorHandler} from './middlewares/error.handler.js';
 
 import passport from 'passport';
 import { LocalStrategy } from './utils/auth/strategies/local.strategy.js';
@@ -42,7 +42,6 @@ routerApi(app);
 app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
-app.use(errorHandlerExistencia);
 app.use(errorHandler);
 
 
