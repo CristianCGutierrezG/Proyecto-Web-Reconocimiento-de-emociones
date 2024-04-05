@@ -71,8 +71,6 @@ checkRoles('Estudiante', 'Profesional de salud', 'Administrador'),
 );
 
 router.post('/',
-  passport.authenticate('jwt', {session: false}),
-  checkRoles('Estudiante', 'Administrador'),
   validatorHandler(createEstudianteSchema, 'body'),
   async (req, res, next) => {
     try {

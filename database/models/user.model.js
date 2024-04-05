@@ -23,16 +23,16 @@ const UserSchema = {
     allowNull: false,
     type: DataTypes.STRING
   },
-  recoveryToken: {
-    field: 'recovery_token',
-    allowNull: true,
-    type: DataTypes.STRING
-  },
   role: {
     allowNull: false,
     type: DataTypes.STRING,
     defaultValue: "Estudiante",
   }, 
+  recoveryToken: {
+    field: 'recovery_token',
+    allowNull: true,
+    type: DataTypes.STRING
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
@@ -49,10 +49,6 @@ class User extends Model {
     });
     this.hasOne(models.Profesor, {
       as: 'profesor',
-      foreignKey: 'userId'
-    });
-    this.hasOne(models.ProSalud, {
-      as: 'proSalud',
       foreignKey: 'userId'
     });
   }

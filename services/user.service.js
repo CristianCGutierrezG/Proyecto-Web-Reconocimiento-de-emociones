@@ -25,11 +25,6 @@ class UserService {
           as: 'profesor',
           attributes: ['nombres', 'apellidos', 'codigoInstitucional']
         },
-        { 
-          model: sequelize.models.ProSalud, 
-          as: 'proSalud',
-          attributes: ['nombres', 'apellidos', 'codigoInstitucional']
-        }
       ],
     };
     const { limit, offset } = query;
