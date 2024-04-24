@@ -4,40 +4,62 @@ import { checkRoles } from '../middlewares/auth.handler.js';
 
 import { EmocionService } from '../services/emocion.service.js';
 import { validatorHandler } from './../middlewares/validator.handler.js';
-import { updateEmocionSchema, createEmocionSchema, getEmocionSchema } from '../schemas/emociones.schema.js'; 
+import {createEmocionSchema} from '../schemas/emociones.schema.js'; 
 
 const router = express.Router();
 const service = new EmocionService();
 
-router.get('/', 
-  passport.authenticate('jwt', {session: false}),
-  checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
-  async (req, res, next) => {
-    try {
-      const emocion = await service.find();
-      res.json(emocion);
-    } catch (error) {
-      next(error);
-    }
-});
+/**
+ * 
+ * @swagger
+ * components:
+ *  schemas:
+ *    Emociones:
+ *      type: object
+ *      properties:
+ *        emocion:
+ *          type: string
+ *          description: tipo de emocion 
+ *      required:
+ *        - emocion
+ *      example:
+ *        emocion: Triste      
+ *  securitySchemes:
+ *    ApiKeyAuth:
+ *      type: apiKey
+ *      in: header
+ *      name: api   
+ *    BearerAuth:
+ *      type: http
+ *      scheme: bearer
+ */
 
-router.get('/:id',
-  passport.authenticate('jwt', {session: false}),
-  checkRoles('Estudiante','Profesor', 'Profesional de salud', 'Administrador'),
-  validatorHandler(getEmocionSchema, 'params'),
-  async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const emocion = await service.findOne(id);
-      res.json(emocion);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+/**
+ * @openapi
+ * /api/v1/emociones:
+ *  post:
+ *    summary: crea una emocion segun el token del estudiante
+ *    tags: [Emociones]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            $ref: '#/components/schemas/Emociones'
+ *    responses:
+ *      201:
+ *        description: nueva emocion creada!
+ *      401:
+ *        description: Unauthorized
+ */
 
 router.post('/',
   passport.authenticate('jwt', {session: false}),
+  checkRoles('Estudiante', 'Administrador'),
   validatorHandler(createEmocionSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -51,37 +73,6 @@ router.post('/',
   }
 );
 
-router.patch('/:id',
-  passport.authenticate('jwt', {session: false}),
-  checkRoles('Administrador'),
-  validatorHandler(getEmocionSchema, 'params'),
-  validatorHandler(updateEmocionSchema, 'body'),
-  async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const body = req.body;
-      const emocion = await service.update(id, body);
-      res.json(emocion);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.delete('/:id',
-passport.authenticate('jwt', {session: false}),
-  checkRoles('Administrador'),
-  validatorHandler(getEmocionSchema, 'params'),
-  async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      await service.delete(id);
-      res.status(201).json({id});
-    } catch (error) {
-      next(error);
-    }
-  }
-);
 
 export {router};
 

@@ -38,12 +38,16 @@ class MateriasService {
 
   async find(query) {
     const options = {
+      // include: [{
+      //   association: 'profesor',
+      //   attributes: {
+      //     exclude: ['fechaNacimiento', 'createdAt', 'userId', 'id'] 
+      //   },}]
       include: [{
-        association: 'profesor',
-        attributes: {
-          exclude: ['fechaNacimiento', 'createdAt', 'userId'] 
-        }}
-      ]
+    association:'horarios',
+    attributes: ['dia', 'horaInicio','horaFin']
+  }]
+        
     };
     const { limit, offset } = query;
     if (limit && offset) {
@@ -67,6 +71,13 @@ class MateriasService {
     return materias;
   }
 
+  // Nueva ruta para hallar los horarios,
+  // include: [{
+  //   association:'horarios',
+  //   attributes: ['dia', 'horaInicio','horaFin']
+  // }]
+    
+
   async findByEstudiante(userId) {
     const materias = await sequelize.models.Materias.findAll({
       where: {
@@ -75,12 +86,12 @@ class MateriasService {
       include: [{
         association: 'inscritos',
         attributes: {
-          exclude: ['fechaNacimiento', 'createdAt', 'userId'] 
+          exclude: ['fechaNacimiento', 'createdAt'] 
         },
         include: [{ 
           model: sequelize.models.User, 
           as: 'user',
-          attributes: ['id', 'email', 'role']
+          attributes: ['email', 'role']
         }]
       }]
     });
@@ -94,10 +105,11 @@ class MateriasService {
       },
       include: [{
         association: 'profesor',
+        attributes: ['nombres', 'apellidos', 'codigoInstitucional'],
         include: [{ 
           model: sequelize.models.User, 
           as: 'user',
-          attributes: ['id', 'email', 'role']
+          attributes: ['email', 'role']
         }]
       }]
     });

@@ -8,13 +8,15 @@ import passport from 'passport';
 import { LocalStrategy } from './utils/auth/strategies/local.strategy.js';
 import { JwtStrategy } from './utils/auth/strategies/jwt.strategy.js';
 
+import { swaggerDocs } from './utils/doc/swagger.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-const whitelist = ['http://localhost:8080', 'https://myapp.co'];
+//Brinda acceso y permiso de cors a las rutas especificadas en la whitelist
+const whitelist = [`http://localhost:${port}/api/v1/docs/`, `http://localhost:${port}`];
 const options = {
   origin: (origin, callback) => {
     if (whitelist.includes(origin) || !origin) {
@@ -48,4 +50,5 @@ app.use(errorHandler);
 
 app.listen(port, () => {
   console.log('Mi port' +  port);
+  swaggerDocs(app, port);
 });

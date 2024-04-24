@@ -1,5 +1,10 @@
 import Joi from 'joi'
 
+/** 
+ * Define los diferentes schemas con los tipos de datos permitidos
+ * para la validacion de datos del usuario
+*/ 
+
 const id = Joi.number().integer();
 const nombres = Joi.string().min(3).max(30);
 const apellidos = Joi.string().min(3).max(30);
@@ -11,6 +16,8 @@ const password = Joi.string();
 const limit = Joi.number().integer();
 const offset = Joi.number().integer();
 
+
+//Schema para crear un estudiante con la informacion de su usuario 
 const createEstudianteSchema = Joi.object({
   nombres: nombres.required(),
   apellidos: apellidos.required(),
@@ -22,18 +29,20 @@ const createEstudianteSchema = Joi.object({
   })
 });
 
+//Schema para actualizar un estudiante
 const updateEstudianteSchema = Joi.object({
   nombres,
   apellidos,
   fechaNacimiento,
-  codigoInstitucional,
-  userId
+  codigoInstitucional
 });
 
+//Schema para obtener un usuario por su id
 const getEstudianteSchema = Joi.object({
   id: id.required(),
 });
 
+//Schema para obtener un numero de estudiantes definido
 const queryEstudianteSchema = Joi.object({
   limit,
   offset,

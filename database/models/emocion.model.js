@@ -1,6 +1,12 @@
 import { Model, DataTypes} from 'sequelize';
 import { ESTUDIANTE_TABLE } from './estudiante.model.js';
 
+/**
+ * Se crea el schema de la tabla emociones
+ * sus relaciones con otras tablas
+ * la configuracion de sequelize
+ */
+
 const EMOCION_TABLE = 'emociones';
 
 const EmocionSchema = {
@@ -35,6 +41,7 @@ const EmocionSchema = {
 
 class Emocion extends Model {
   static associate(models) {
+    //Uno a Muchos con estudiantes
     this.belongsTo(models.Estudiante, {as: 'estudiante'});
   }
 

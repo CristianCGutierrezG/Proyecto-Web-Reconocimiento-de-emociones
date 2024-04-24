@@ -1,6 +1,12 @@
 import { Model, DataTypes} from 'sequelize';
 import bcrypt from 'bcrypt'
 
+/**
+ * Se crea el schema de la tabla users
+ * sus relaciones con otras tablas
+ * la configuracion de sequelize
+ */
+
 const USER_TABLE = 'users';
 
 const UserSchema = {
@@ -43,12 +49,22 @@ const UserSchema = {
 
 class User extends Model {
   static associate(models) {
+    
+    //Uno a Uno con estudiantes
     this.hasOne(models.Estudiante, {
       as: 'estudiante',
       foreignKey: 'userId'
     });
+
+    //Uno a Uno con profesores
     this.hasOne(models.Profesor, {
       as: 'profesor',
+      foreignKey: 'userId'
+    });
+
+    //Uno a Uno con profesores
+    this.hasOne(models.ProSalud, {
+      as: 'proSalud',
       foreignKey: 'userId'
     });
   }

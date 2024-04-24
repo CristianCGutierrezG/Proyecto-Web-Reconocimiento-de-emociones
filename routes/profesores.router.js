@@ -9,9 +9,10 @@ import { createProfesorSchema, updateProfesorSchema, getProfesorSchema, queryPro
 const router = express.Router();
 const service = new ProfesoresService();
 
+
 router.get('/',
   passport.authenticate('jwt', {session: false}),
-  checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
+  checkRoles('Administrador'),
   validatorHandler(queryProfesorSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -24,8 +25,9 @@ router.get('/',
 );
 
 router.get('/:id',
+ //Acceder solo a su informacion
   passport.authenticate('jwt', {session: false}),
-  checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
+  checkRoles('Profesor', 'Administrador'),
   validatorHandler(getProfesorSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -39,6 +41,8 @@ router.get('/:id',
 );
 
 router.post('/',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('Administrador'),
   validatorHandler(createProfesorSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -52,6 +56,7 @@ router.post('/',
 );
 
 router.patch('/:id',
+//Acceder solo a su informacion autotoken
   passport.authenticate('jwt', {session: false}),
   checkRoles('Profesor', 'Administrador'),
   validatorHandler(getProfesorSchema, 'params'),
@@ -70,7 +75,7 @@ router.patch('/:id',
 
 router.delete('/:id',
   passport.authenticate('jwt', {session: false}),
-  checkRoles('Profesor', 'Administrador'),
+  checkRoles('Administrador'),
   validatorHandler(getProfesorSchema, 'params'),
   async (req, res, next) => {
     try {

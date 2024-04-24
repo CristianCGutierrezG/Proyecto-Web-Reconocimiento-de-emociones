@@ -13,7 +13,6 @@ class AuthService {
     if (!user) {
       throw boom.unauthorized();
     }
-    // console.log(user);
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw boom.unauthorized();

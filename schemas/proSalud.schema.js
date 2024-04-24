@@ -8,24 +8,20 @@ const codigoInstitucional = Joi.number().integer();
 const userId = Joi.number().integer();
 const email = Joi.string().email();
 const password = Joi.string();
-const role = [ 'Profesor', 'Profesional de salud' ];
-const limit = Joi.number().integer();
-const offset = Joi.number().integer();
 
 
-const createProfesorSchema = Joi.object({
+const createProSaludSchema = Joi.object({
   nombres: nombres.required(),
   apellidos: apellidos.required(),
   fechaNacimiento: fechaNacimiento.required(),
   codigoInstitucional: codigoInstitucional.required(),
   user: Joi.object({
     email: email.required(),
-    password: password.required(),
-    role: Joi.string().valid(...role).required()
+    password: password.required()
   })
 });
 
-const updateProfesorSchema = Joi.object({
+const updateProSaludSchema = Joi.object({
   nombres,
   apellidos,
   fechaNacimiento,
@@ -33,13 +29,8 @@ const updateProfesorSchema = Joi.object({
   userId
 });
 
-const getProfesorSchema = Joi.object({
+const getProSaludSchema = Joi.object({
   id: id.required(),
 });
 
-const queryProfesorSchema = Joi.object({
-  limit,
-  offset,
-});
-
-export { createProfesorSchema, updateProfesorSchema, getProfesorSchema, queryProfesorSchema };
+export { createProSaludSchema, updateProSaludSchema, getProSaludSchema };

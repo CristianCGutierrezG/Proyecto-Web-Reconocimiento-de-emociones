@@ -1,15 +1,9 @@
 import { Model, DataTypes} from 'sequelize';
 import { USER_TABLE } from './user.model.js';
 
-/**
- * Se crea el schema de la tabla estudiantes
- * sus relaciones con otras tablas
- * la configuracion de sequelize
- */
+const PROSALUD_TABLE = 'profesional_salud';
 
-const ESTUDIANTE_TABLE = 'estudiantes';
-
-const EstudianteSchema = {
+const ProSaludSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -55,35 +49,20 @@ const EstudianteSchema = {
   }
 }
 
-class Estudiante extends Model {
+class ProSalud extends Model {
   static associate(models) {
-    //Uno a Uno con user
     this.belongsTo(models.User, {as: 'user'});
-
-    //Uno a Muchos con emociones
-    this.hasMany(models.Emocion, {
-      as: 'emociones',
-      foreignKey: 'estudianteId'
-    });
-
-    //Muchos a Muchos con materias
-    this.belongsToMany(models.Materias, {
-      as: 'inscritos',
-      through: models.EstudiantesMaterias,
-      foreignKey: 'estudianteId',
-      otherKey: 'materiaId'
-    });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: ESTUDIANTE_TABLE,
-      modelName: 'Estudiante',
+      tableName: PROSALUD_TABLE,
+      modelName: 'ProSalud',
       timestamps: false
     }
   }
 }
 
 
-export { ESTUDIANTE_TABLE, EstudianteSchema, Estudiante }
+export { PROSALUD_TABLE, ProSaludSchema, ProSalud }

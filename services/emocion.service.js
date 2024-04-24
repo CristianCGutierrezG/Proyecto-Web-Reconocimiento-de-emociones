@@ -1,9 +1,16 @@
 import  boom  from '@hapi/boom';
 import  { sequelize }  from '../libs/sequelize.js';
 
+/**
+ * Define las diferentes interaciones con la base de datos
+ * para el API-REST,con la ayuda de sequileze en el modelo Emociones
+ * Obtiene los datos de la BD y los retorna
+*/
+
 class EmocionService {
   constructor() {}
 
+   //Creacion de una nueva emocion en la BD
   async create(data, userId) {
     const estudiante = await sequelize.models.Estudiante.findOne({
       where: { userId },
@@ -16,21 +23,7 @@ class EmocionService {
     return newEmocion;
   }
 
-  async find() {
-    const rta = await sequelize.models.Emocion.findAll({
-      include: ['estudiante']
-    });
-    return rta;
-  }
-
-  async findOne(id) {
-    const emocion = await sequelize.models.Emocion.findByPk(id);
-    if(!emocion){
-      throw boom.notFound('Emocion no encontrada');
-    }
-    return emocion;
-  }
-
+  //Encuentra las emociones relacionadas con el token de un estudiante
   async findByUser(userId) {
     const emocion = await sequelize.models.Emocion.findAll({
       where: {
@@ -38,27 +31,17 @@ class EmocionService {
       },
       include: [{
         association: 'estudiante',
+        attributes: ['id'],
         include: [{ 
           model: sequelize.models.User, 
           as: 'user',
-          attributes: ['id', 'email', 'role']
+          attributes: ['id']
         }]
       }]
     });
     return emocion;
   }
 
-  async update(id, changes) {
-    const emocion = await this.findOne(id);
-    const rta = await emocion.update(changes);
-    return rta;
-  }
-
-  async delete(id) {
-    const emocion = await this.findOne(id);
-    await emocion.destroy();
-    return { id };
-  }
 }
 
 export {EmocionService};

@@ -38,6 +38,8 @@ router.get('/:id',
   }
 );
 
+
+//que por cada curso solo se pueda 
 router.post('/',
   passport.authenticate('jwt', {session: false}),
   checkRoles('Profesor', 'Administrador'),
@@ -55,6 +57,7 @@ router.post('/',
 );
 
 router.post('/add-inscripcion',
+  //estudiante autotoken
   passport.authenticate('jwt', {session: false}),
   checkRoles('Estudiante', 'Profesor', 'Administrador'),
   validatorHandler(addInscripcionSchema, 'body'),

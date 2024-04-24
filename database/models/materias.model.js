@@ -39,6 +39,10 @@ const MateriasSchema = {
 
 class Materias extends Model {
   static associate(models) {
+    this.hasMany(models.Horarios, {
+      as: 'horarios',
+      foreignKey: 'materiaId'
+    });
     this.belongsTo(models.Profesor, {as: 'profesor'});
     this.belongsToMany(models.Estudiante, {
       as: 'inscritos',
