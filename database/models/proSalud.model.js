@@ -1,6 +1,12 @@
 import { Model, DataTypes} from 'sequelize';
 import { USER_TABLE } from './user.model.js';
 
+/**
+ * Se crea el schema de la tabla profesional_salud
+ * sus relaciones con otras tablas
+ * la configuracion de sequelize
+ */
+
 const PROSALUD_TABLE = 'profesional_salud';
 
 const ProSaludSchema = {
@@ -51,6 +57,7 @@ const ProSaludSchema = {
 
 class ProSalud extends Model {
   static associate(models) {
+    //Uno a Uno con user
     this.belongsTo(models.User, {as: 'user'});
   }
 

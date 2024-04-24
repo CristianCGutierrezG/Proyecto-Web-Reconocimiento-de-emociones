@@ -1,14 +1,14 @@
 import express from 'express';
+import passport from 'passport';
 
 import {EstudiantesService} from '../services/estudiante.service.js'
 import {validatorHandler} from '../middlewares/validator.handler.js'
 import { createEstudianteSchema, updateEstudianteSchema, getEstudianteSchema, queryEstudianteSchema } from '../schemas/estudiante.schema.js';
-import passport from 'passport';
 import { checkRoles } from '../middlewares/auth.handler.js';
 import { checkApiKey } from '../middlewares/auth.handler.js'  
 
 /** 
- * Define los diferentes rutas o endpoint para los datos de un Usuario
+ * Define los diferentes rutas o endpoint para los datos de un Estudiante
  * Comprobaciones.
  *  - Llave de acceso a la API
  *  - Datos de envio correctos
@@ -39,7 +39,7 @@ const service = new EstudiantesService();
  *        codigoInstitucional:
  *          type: number
  *          format: int64
- *          description: fecha de nacimiento 
+ *          description: codigo unico asignado en la institución 
  *        user:
  *          type: object
  *          properties:
@@ -71,7 +71,7 @@ const service = new EstudiantesService();
  *          description: nombres del estudiante
  *        apellidos:
  *          type: string
- *          description: apellidos del usuario
+ *          description: apellidos del estudiante
  *        fechaNacimiento:
  *          type: string
  *          format: date
@@ -79,7 +79,7 @@ const service = new EstudiantesService();
  *        codigoInstitucional:
  *          type: number
  *          format: int64
- *          description: fecha de nacimiento 
+ *          description: codigo unico asignado en la institución 
  *      example:
  *        nombres: Juan
  *        apellidos: Perez
@@ -105,7 +105,7 @@ const service = new EstudiantesService();
  *    parameters:
  *      - in: query
  *        name: limit
- *        description: numero de itemes a recibir
+ *        description: numero de items a recibir
  *        schema:   
  *          type: integer
  *          minimum: 0
@@ -122,7 +122,7 @@ const service = new EstudiantesService();
  *      - BearerAuth: []
  *    responses:
  *      200:
- *        description: un estudiante especifico
+ *        description: todos los estudiantes
  *        content:
  *          aplication/json:
  *            schema:
@@ -166,7 +166,7 @@ router.get('/',
  *      - BearerAuth: []
  *    responses:
  *      200:
- *        description: todos los estudiantes
+ *        description: un estudiante especifico
  *        content:
  *          aplication/json:
  *            schema:
@@ -176,7 +176,7 @@ router.get('/',
  *      401:
  *        description: Unauthorized
  *      404:
- *        description: Usuario no encontrado
+ *        description: Estudiante no encontrado
  */
 router.get('/:id',
   passport.authenticate('jwt', {session: false}),

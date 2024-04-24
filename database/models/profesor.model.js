@@ -1,6 +1,12 @@
 import { Model, DataTypes} from 'sequelize';
 import { USER_TABLE } from './user.model.js';
 
+/**
+ * Se crea el schema de la tabla profesores
+ * sus relaciones con otras tablas
+ * la configuracion de sequelize
+ */
+
 const PROFESOR_TABLE = 'profesores';
 
 const ProfesorSchema = {
@@ -51,7 +57,10 @@ const ProfesorSchema = {
 
 class Profesor extends Model {
   static associate(models) {
+    //Uno a Uno con user
     this.belongsTo(models.User, {as: 'user'});
+
+    //Uno a Muchos con materias
     this.hasMany(models.Materias, {
       as: 'materias',
       foreignKey: 'profesorId'

@@ -2,7 +2,7 @@ import Joi from 'joi'
 
 /** 
  * Define los diferentes schemas con los tipos de datos permitidos
- * para la validacion de datos del usuario
+ * para la validacion de datos del estudiante
 */ 
 
 const id = Joi.number().integer();
@@ -37,7 +37,7 @@ const updateEstudianteSchema = Joi.object({
   codigoInstitucional
 });
 
-//Schema para obtener un usuario por su id
+//Schema para obtener un estudiante por su id
 const getEstudianteSchema = Joi.object({
   id: id.required(),
 });

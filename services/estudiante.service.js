@@ -14,7 +14,7 @@ class EstudiantesService {
 
   constructor() {}
 
-  //Creacion de un nuevo estudinte en la BD
+  //Creacion de un nuevo estudiante en la BD
   //Relacionado con la info de su usuario asignado
   async create(data, email, codigo) { 
     // Verificar la unicidad del correo electrónico y el código institucional 
@@ -85,7 +85,7 @@ class EstudiantesService {
     return estudiante;
   }
 
-  // //Encontrar la info asignadas a un estudiante sgun su token
+  //Encontrar la info asignadas a un estudiante sgun su token
   async findByUser(userId) {
     const estudiante = await sequelize.models.Estudiante.findOne({
       where: {
@@ -101,7 +101,7 @@ class EstudiantesService {
     return estudiante;
   }
 
- //Encontrar las emociones asignadas a un estudiante sgun su token
+ //Encontrar las emociones asignadas a un estudiante segun su token
   async findOneByEmociones(id) {
     const estudiante = await sequelize.models.Estudiante.findByPk(id, {
       include: [ 
@@ -138,12 +138,11 @@ class EstudiantesService {
   //Actualizar la info de un estudiante
   async update(id, changes) {
     const estudiante = await this.findOne(id);
-    console.log(estudiante)
     const rta = await estudiante.update(changes);
     return rta;
   }
 
-  //Actualizar la info de un estudiante
+  //Actualizar la info de un estudiante segun su token
   async updateToken(id, changes) {
     const estudiante = await this.findByUser(id);
     const rta = await estudiante.update(changes);
