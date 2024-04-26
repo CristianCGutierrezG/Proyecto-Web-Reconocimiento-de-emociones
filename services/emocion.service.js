@@ -24,8 +24,8 @@ class EmocionService {
   }
 
   //Encuentra las emociones relacionadas con el token de un estudiante
-  async findByUser(userId) {
-    const emocion = await sequelize.models.Emocion.findAll({
+  async findByUser(userId, query) {
+    const options = {
       where: {
         '$estudiante.user.id$' :userId
       },
@@ -38,7 +38,13 @@ class EmocionService {
           attributes: ['id']
         }]
       }]
-    });
+    };
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset;
+    }
+    const emocion = await sequelize.models.Emocion.findAll(options);
     return emocion;
   }
 

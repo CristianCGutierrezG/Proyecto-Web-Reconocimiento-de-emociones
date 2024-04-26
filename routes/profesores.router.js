@@ -178,7 +178,7 @@ router.get('/',
  *      401:
  *        description: Unauthorized
  *      404:
- *        description: Profesore no encontrado
+ *        description: Profesor no encontrado
  */
 router.get('/:id',
   passport.authenticate('jwt', {session: false}),

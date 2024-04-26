@@ -2,6 +2,12 @@ import { Model, DataTypes} from 'sequelize';
 import { ESTUDIANTE_TABLE } from './estudiante.model.js';
 import { MATERIAS_TABLE } from './materias.model.js';
 
+/**
+ * Se crea el schema de la tabla de union estudiantes_materias
+ * sus relaciones con otras tablas
+ * la configuracion de sequelize
+*/
+
 const ESTUDIANTES_MATERIAS_TABLE = 'estudiantes_materias';
 
 const EstudiantesMateriasSchema = {
@@ -43,7 +49,6 @@ const EstudiantesMateriasSchema = {
 
 class EstudiantesMaterias extends Model {
   static associate(models) {
-    
   }
 
   static config(sequelize) {

@@ -1,6 +1,12 @@
 import { Model,DataTypes,Sequelize } from 'sequelize';
 import { MATERIAS_TABLE } from './materias.model.js';
 
+/**
+ * Se crea el schema de la tabla horarios
+ * sus relaciones con otras tablas
+ * la configuracion de sequelize
+*/
+
 const HORARIOS_TABLE = 'horarios';
 
 const TimeOnly = DataTypes.DATEONLY;
@@ -47,6 +53,7 @@ const HorariosSchema = {
 
 class Horarios extends Model {
   static associate(models) {
+    //Uno a Muchos con materias
     this.belongsTo(models.Materias, {as: 'materia'});
   }
 

@@ -40,7 +40,7 @@ const service = new UserService();
  *        - role
  *      example:
  *        email: user@email.com
- *        password: 123456xcd
+ *        password: password123
  *        role: Administrador
  *    UserUpdate:
  *      type: object

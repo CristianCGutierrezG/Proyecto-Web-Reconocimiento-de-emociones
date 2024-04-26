@@ -5,9 +5,19 @@ import nodemailer from 'nodemailer';
 
 import { config } from '../config/config.js';
 import { UserService } from './user.service.js';
+
+/**
+ * Define las diferentes interaciones con la base de datos
+ * para el API-REST,con la ayuda de sequileze para la autenticacion
+ * Obtiene los datos de la BD y los retorna
+*/
+
 const service = new UserService();
 
 class AuthService {
+
+  //Obtiene el usuario asignado a un correo en especificando
+  //realizando la comprobacion de su contraseña
   async getUser(email, password) {
     const user = await service.findByEmail(email);
     if (!user) {
@@ -22,6 +32,7 @@ class AuthService {
     return user;
   }
 
+  //asigna el token dependiendo del rol del usuario que ingresa
   signToken(user) {
     const payload = {
       sub: user.id,
@@ -34,6 +45,7 @@ class AuthService {
     };
   }
 
+  //Envio del link de recuperacion de contraseña al correo especificado
   async sendRecovery(email) {
     const user = await service.findByEmail(email);
     if (!user) {
@@ -57,6 +69,7 @@ class AuthService {
     return rta;
   }
 
+  //Cambio de contraseña en la bd
   async changePassword(token, newPassword) {
     try {
       const payload = jwt.verify(token, config.jwtRecoverySecret);
@@ -74,6 +87,7 @@ class AuthService {
     }
   }
 
+  //Especificaciones del envio de correo
   async sendMail(infoMail) {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',

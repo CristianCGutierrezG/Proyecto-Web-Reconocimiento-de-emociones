@@ -1,5 +1,4 @@
 import boom from '@hapi/boom';
-
 import { sequelize } from '../libs/sequelize.js';
 
 /**

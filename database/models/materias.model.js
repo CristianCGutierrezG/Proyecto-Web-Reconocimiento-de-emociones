@@ -1,6 +1,12 @@
 import { Model, DataTypes} from 'sequelize';
 import { PROFESOR_TABLE } from './profesor.model.js';
 
+/**
+ * Se crea el schema de la tabla materias
+ * sus relaciones con otras tablas
+ * la configuracion de sequelize
+*/
+
 const MATERIAS_TABLE = 'materias';
 
 const MateriasSchema = {
@@ -39,11 +45,17 @@ const MateriasSchema = {
 
 class Materias extends Model {
   static associate(models) {
+
+  //Uno a Muchos con horarios
     this.hasMany(models.Horarios, {
       as: 'horarios',
       foreignKey: 'materiaId'
     });
+
+    //Uno a Muchos con profesores
     this.belongsTo(models.Profesor, {as: 'profesor'});
+
+    //Muchos a Muchos con estudiantes
     this.belongsToMany(models.Estudiante, {
       as: 'inscritos',
       through: models.EstudiantesMaterias,
