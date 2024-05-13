@@ -35,6 +35,11 @@ const ProfesorSchema = {
     unique: true,
     field: 'codigo_institucional',
   },
+  activo: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,

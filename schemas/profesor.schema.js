@@ -14,6 +14,7 @@ const userId = Joi.number().integer();
 const email = Joi.string().email();
 const password = Joi.string();
 const role = [ 'Profesor'];
+const activo = Joi.boolean();
 const limit = Joi.number().integer();
 const offset = Joi.number().integer();
 
@@ -36,7 +37,8 @@ const updateProfesorSchema = Joi.object({
   apellidos,
   fechaNacimiento,
   codigoInstitucional,
-  userId
+  userId,
+  activo
 });
 
 //Schema para obtener un estudiante por su id

@@ -24,6 +24,11 @@ const MateriasSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
+  activo: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,

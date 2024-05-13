@@ -10,7 +10,8 @@ function generateUser(role) {
         //Colocor el hash en la contraseña
         password: password,
         role: role,
-        created_at: new Date()
+        created_at: new Date(),
+        activo: true
     };
 }
 
@@ -21,6 +22,7 @@ function generatePersona(role) {
         fecha_nacimiento: faker.date.between({from: '1980-01-01', to: '2005-12-31'}).toLocaleDateString(),
         codigo_institucional: faker.number.int({min: 10000000, max: 99999999}),
         created_at: new Date(),
+        activo: true,
         user_id: userIdCounter++
     };
 }
@@ -43,6 +45,7 @@ function generateMateria() {
         nombre: faker.lorem.words(),
         grupo: `${numeroGrupo}-${letraGrupo}`,
         profesor_id: faker.number.int({ min: 1, max: 20}),
+        activo: true,
         created_at: new Date()
     };
 }
@@ -51,8 +54,9 @@ function generateHorario(){
     return{
         dia: faker.string.fromCharacters(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
         hora_inicio: faker.date.between({from: '2024-01-01T08:00:00', to: '2024-01-01T18:00:00'}).toLocaleTimeString(),
-        hora_fin: faker.date.between({from: '2024-01-01T12:00:00', to: '2024-01-01T22:00:00'}).toLocaleTimeString(),
+        hora_fin: faker.date.between({from: '2024-01-01T10:00:00', to: '2024-01-01T22:00:00'}).toLocaleTimeString(),
         created_at: new Date(),
+        activo: true,
         materia_id: faker.number.int({ min: 1, max: 30})
     }
 }
@@ -61,6 +65,7 @@ function inscribirAlumno(){
     return{
         materia_id: faker.number.int({ min: 1, max: 30}),
         estudiante_id: faker.number.int({ min: 1, max: 80}),
+        activo: true,
         created_at: new Date()
     }
 }

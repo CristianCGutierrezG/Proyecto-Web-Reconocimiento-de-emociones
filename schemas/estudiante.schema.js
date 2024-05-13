@@ -13,6 +13,7 @@ const codigoInstitucional = Joi.number().integer();
 const userId = Joi.number().integer();
 const email = Joi.string().email();
 const password = Joi.string();
+const activo = Joi.boolean();
 const limit = Joi.number().integer();
 const offset = Joi.number().integer();
 
@@ -34,7 +35,8 @@ const updateEstudianteSchema = Joi.object({
   nombres,
   apellidos,
   fechaNacimiento,
-  codigoInstitucional
+  codigoInstitucional,
+  activo
 });
 
 //Schema para obtener un estudiante por su id

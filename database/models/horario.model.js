@@ -9,8 +9,6 @@ import { MATERIAS_TABLE } from './materias.model.js';
 
 const HORARIOS_TABLE = 'horarios';
 
-const TimeOnly = DataTypes.DATEONLY;
-
 const HorariosSchema = {
   id: {
     allowNull: false,
@@ -24,13 +22,18 @@ const HorariosSchema = {
   },
   horaInicio: {
     allowNull: false,
-    type: TimeOnly,
+    type: DataTypes.TIME,
     field: 'hora_inicio'
   },
   horaFin: {
     allowNull: false,
-    type: TimeOnly,
+    type: DataTypes.TIME,
     field: 'hora_fin'
+  },
+  activo: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   },
   createdAt: {
     allowNull: false,

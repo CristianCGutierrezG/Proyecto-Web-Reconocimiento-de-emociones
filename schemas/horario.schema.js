@@ -7,12 +7,11 @@ import Joi from 'joi'
 
 const id = Joi.number().integer();
 const dia = Joi.string();
-// const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-// const horaInicio = Joi.string().regex(timeRegex);
-// const horaFin = Joi.string().regex(timeRegex);
-const horaInicio = Joi.date().iso();
-const horaFin = Joi.date().iso();
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+const horaInicio = Joi.string().regex(timeRegex);
+const horaFin = Joi.string().regex(timeRegex);
 const materiaId = Joi.number().integer();
+const activo = Joi.boolean();
 
 //Schema para crear un horario con el id de una materia
 const createHorariosSchema = Joi.object({
@@ -26,7 +25,8 @@ const createHorariosSchema = Joi.object({
 const updateHorariosSchema = Joi.object({
     dia,
     horaInicio,
-    horaFin
+    horaFin,
+    activo
 });
 
 //Schema para obtener un horario por su id

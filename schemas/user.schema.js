@@ -8,6 +8,7 @@ const id = Joi.number().integer();
 const email = Joi.string().email();
 const password = Joi.string().min(8);
 const validRoles = ['Administrador'];
+const activo = Joi.boolean();
 const limit = Joi.number().integer();
 const offset = Joi.number().integer();
 
@@ -21,7 +22,8 @@ const createUserSchema = Joi.object({
 //Schema para actualizar un usuario 
 const updateUserSchema = Joi.object({
   email: email,
-  role: Joi.string().valid(...validRoles)
+  role: Joi.string().valid(...validRoles),
+  activo
 });
 
 //Schema para obtener un usuario por su id

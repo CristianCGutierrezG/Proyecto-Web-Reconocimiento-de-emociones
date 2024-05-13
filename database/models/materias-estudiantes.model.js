@@ -39,6 +39,11 @@ const EstudiantesMateriasSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL'
   },
+  activo: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,

@@ -11,6 +11,7 @@ const grupo = Joi.string();
 const profesorId = Joi.number().integer();
 const materiaId = Joi.number().integer();
 const estudianteId = Joi.number().integer();
+const activo = Joi.boolean();
 const limit = Joi.number().integer();
 const offset = Joi.number().integer();
 
@@ -25,7 +26,8 @@ const createMateriasSchema = Joi.object({
 const updateMateriasSchema = Joi.object({
   nombre,
   grupo,
-  profesorId
+  profesorId,
+  activo
 });
 
 //Schema para obtener una materia por su id
