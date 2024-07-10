@@ -3,11 +3,10 @@ import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 
 let userIdCounter = 1;
-const password = await bcrypt.hash('qwerty123', 10);
+const password = await bcrypt.hash('password123', 10);
 function generateUser(role) {
     return {
         email: faker.internet.email(),
-        //Colocor el hash en la contraseña
         password: password,
         role: role,
         created_at: new Date(),
@@ -20,7 +19,7 @@ function generatePersona(role) {
         nombres: faker.person.firstName(),
         apellidos: faker.person.lastName(),
         fecha_nacimiento: faker.date.between({from: '1980-01-01', to: '2005-12-31'}).toLocaleDateString(),
-        codigo_institucional: faker.number.int({min: 10000000, max: 99999999}),
+        codigo_institucional: faker.number.int({min: 1000000000, max: 9999999999}),
         created_at: new Date(),
         activo: true,
         user_id: userIdCounter++
@@ -120,6 +119,8 @@ for (let i=0; i < 160; i++){
     materiasEstudiantes.push(inscribirAlumno());
 }
 
+const user = generateUser('Administrador');
+users.push(user);
 
 /** @type {import('umzug').MigrationFn<any>} */
 export const up = async () => {

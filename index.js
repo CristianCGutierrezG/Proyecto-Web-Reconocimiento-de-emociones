@@ -16,7 +16,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 //Brinda acceso y permiso de cors a las rutas especificadas en la whitelist
-const whitelist = [`http://localhost:${port}/api/v1/docs/`, `http://localhost:${port}`];
+const whitelist = [`http://localhost:${port}/api/v1/docs/`, `http://localhost:${port}`, `http://localhost:3000`];
 const options = {
   origin: (origin, callback) => {
     if (whitelist.includes(origin) || !origin) {

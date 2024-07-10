@@ -31,7 +31,7 @@ const EstudianteSchema = {
   },
   codigoInstitucional: {
     allowNull: false,
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     unique: true,
     field: 'codigo_institucional',
   },
