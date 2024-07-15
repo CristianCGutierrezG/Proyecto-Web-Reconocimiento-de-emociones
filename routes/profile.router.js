@@ -4,6 +4,8 @@ import passport from 'passport';
 import {EmocionService} from '../services/emocion.service.js';
 import { MateriasService } from '../services/materias.service.js';
 import { EstudiantesService } from '../services/estudiante.service.js'; 
+import { ProfesoresService } from '../services/profesor.service.js';
+import {ProSaludService} from '../services/proSalud.service.js'
 
 /** 
  * Define los diferentes rutas o endpoint para opciones de obtener datos relacionados con el perfil del usuario
@@ -17,6 +19,8 @@ const router = express.Router();
 const serviceEmocion = new EmocionService();
 const serviceMaterias = new MateriasService();
 const serviceEstudiante = new EstudiantesService();
+const serviceProfesor= new ProfesoresService();
+const serviceProSalud= new ProSaludService();
 
 /**
  * 
@@ -187,6 +191,76 @@ router.get(
   }
 );
 
+
+/**
+ * @openapi
+ * /api/v1/profile/profesor-info:
+ *  get:
+ *    summary: Encuetra la informacion personal del profesor segun el token de acceso
+ *    tags: [Profile]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    responses:
+ *      200:
+ *        description: la información de un profesor especifico
+ *        content:
+ *          aplication/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Profesor'
+ *      401:
+ *        description: Unauthorized
+ */
+router.get(
+  '/profesor-info',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const user = req.user;
+      const info = await serviceProfesor.findByUser(user.sub);
+      res.json(info);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * @openapi
+ * /api/v1/profile/proSalud-info:
+ *  get:
+ *    summary: Encuetra la informacion personal del proSalud segun el token de acceso
+ *    tags: [Profile]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    responses:
+ *      200:
+ *        description: la información de un proSalud especifico
+ *        content:
+ *          aplication/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/ProSalud'
+ *      401:
+ *        description: Unauthorized
+ */
+router.get(
+  '/proSalud-info',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const user = req.user;
+      const info = await serviceProSalud.findByUser(user.sub);
+      res.json(info);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 
 export {router};

@@ -1,5 +1,5 @@
 import  boom  from '@hapi/boom';
-import  { sequelize }  from '../libs/sequelize.js';
+import  { sequelize, Op }  from '../libs/sequelize.js';
 
 /**
  * Define las diferentes interaciones con la base de datos
@@ -186,6 +186,58 @@ class MateriasService {
         }]
       }]
     });
+    return materias;
+  }
+
+  async findByNameOrProfessor(value, query) {
+    // Separar el value en palabras
+    const values = value.split(' ');
+
+    // Construir la condición de búsqueda
+    let searchConditions = [];
+    if (values.length > 1) {
+      searchConditions = values.map(v => ({
+        [Op.or]: [
+          { nombre: { [Op.like]: `%${v}%` } },
+          { '$profesor.nombres$': { [Op.like]: `%${v}%` } },
+          { '$profesor.apellidos$': { [Op.like]: `%${v}%` } }
+        ]
+      }));
+    } else {
+      searchConditions = [
+        { nombre: { [Op.like]: `%${value}%` } },
+        { '$profesor.nombres$': { [Op.like]: `%${value}%` } },
+        { '$profesor.apellidos$': { [Op.like]: `%${value}%` } }
+      ];
+    }
+
+    // Construir opciones de consulta
+    const options = {
+      where: {
+        [Op.or]: searchConditions
+      },
+      include: [
+        {
+          model: sequelize.models.Profesor,
+          as: 'profesor',
+          attributes: ['id', 'nombres', 'apellidos']
+        }
+      ]
+    };
+
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = parseInt(limit, 10);
+      options.offset = parseInt(offset, 10);
+    }
+
+    // Búsqueda
+    const materias = await sequelize.models.Materias.findAll(options);
+
+    if (materias.length === 0) {
+      throw boom.notFound('Materia no encontrada');
+    }
+
     return materias;
   }
 

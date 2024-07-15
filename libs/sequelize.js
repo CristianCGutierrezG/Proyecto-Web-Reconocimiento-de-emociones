@@ -1,4 +1,4 @@
-import { Sequelize }  from "sequelize";
+import { Sequelize, Op }  from "sequelize";
 
 import { config } from "../config/config.js";
 import { setupModels } from "../database/models/index.js";
@@ -16,4 +16,4 @@ const sequelize = new Sequelize(URI,{
 
 setupModels(sequelize)
 
-export {sequelize}
+export {sequelize, Op}

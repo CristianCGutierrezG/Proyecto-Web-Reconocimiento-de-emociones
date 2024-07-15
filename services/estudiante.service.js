@@ -1,7 +1,7 @@
 import boom from '@hapi/boom';
 
-import { sequelize } from '../libs/sequelize.js';
-import { escape } from 'sequelize/lib/sql-string';
+import { sequelize, Op } from '../libs/sequelize.js';
+
 
 
 /**
@@ -13,7 +13,7 @@ import { escape } from 'sequelize/lib/sql-string';
 class EstudiantesService {
 
   constructor() {}
-
+  
   //Creacion de un nuevo estudiante en la BD
   //Relacionado con la info de su usuario asignado
   async create(data, email, codigo) { 
@@ -81,11 +81,10 @@ class EstudiantesService {
     if(!estudiante){
       throw boom.notFound('Estudiante no encontrado');
     }
-    console.log(estudiante)
     return estudiante;
   }
 
-  //Encontrar la info asignadas a un estudiante sgun su token
+  //Encontrar la info asignadas a un estudiante segun su token
   async findByUser(userId) {
     const estudiante = await sequelize.models.Estudiante.findOne({
       where: {
@@ -97,7 +96,6 @@ class EstudiantesService {
           attributes: ['id', 'email', 'role']
         }]
     });
-    console.log(estudiante)
     return estudiante;
   }
 
@@ -133,6 +131,59 @@ class EstudiantesService {
       throw boom.notFound('Estudiante no encontrado');
     }
     return estudiante;
+  }
+
+  //Encontrar un estudiante segun su nombre o codigo estudiantil
+  async findByNameOrCode(value, query) {
+    // Separar el value en palabras
+    const values = value.split(' ');
+  
+    // Construir la condición de búsqueda
+    let searchConditions = [];
+    if (values.length > 1) {
+      searchConditions = values.map(v => ({
+        [Op.or]: [
+          { nombres: { [Op.like]: `%${v}%` } },
+          { apellidos: { [Op.like]: `%${v}%` } },
+          { codigoInstitucional: { [Op.like]: `%${v}%` } }
+        ]
+      }));
+    } else {
+      searchConditions = [
+        { nombres: { [Op.like]: `%${value}%` } },
+        { apellidos: { [Op.like]: `%${value}%` } },
+        { codigoInstitucional: { [Op.like]: `%${value}%` } }
+      ];
+    }
+  
+    // Construir opciones de consulta
+    const options = {
+      where: {
+        [Op.or]: searchConditions
+      },
+      include: [
+        {
+          model: sequelize.models.User,
+          as: 'user',
+          attributes: ['id', 'email', 'role']
+        }
+      ]
+    };
+  
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = parseInt(limit, 10);
+      options.offset = parseInt(offset, 10);
+    }
+  
+    // Búsqueda
+    const estudiantes = await sequelize.models.Estudiante.findAll(options);
+  
+    if (estudiantes.length === 0) {
+      throw boom.notFound('Estudiante no encontrado');
+    }
+  
+    return estudiantes;
   }
 
   //Actualizar la info de un estudiante

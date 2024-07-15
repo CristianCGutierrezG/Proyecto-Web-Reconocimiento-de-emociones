@@ -76,11 +76,10 @@ class ProSaludService {
     if(!proSalud){
       throw boom.notFound('Profesional de salud no encontrado');
     }
-    console.log(proSalud)
     return proSalud;
   }
 
-  //Encontrar la info asignadas a un proSalud sgun su token
+  //Encontrar la info asignadas a un proSalud segun su token
   async findByUser(userId) {
     const proSalud = await sequelize.models.ProSalud.findOne({
       where: {
@@ -92,7 +91,6 @@ class ProSaludService {
           attributes: ['id', 'email', 'role']
         }]
     });
-    console.log(proSalud)
     return proSalud;
   }
 

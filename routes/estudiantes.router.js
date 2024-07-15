@@ -5,7 +5,7 @@ import {EstudiantesService} from '../services/estudiante.service.js'
 import {validatorHandler} from '../middlewares/validator.handler.js'
 import { createEstudianteSchema, updateEstudianteSchema, getEstudianteSchema, queryEstudianteSchema } from '../schemas/estudiante.schema.js';
 import { checkRoles } from '../middlewares/auth.handler.js';
-import { checkApiKey } from '../middlewares/auth.handler.js'  
+import { checkApiKey } from '../middlewares/auth.handler.js';  
 
 /** 
  * Define los diferentes rutas o endpoint para los datos de un Estudiante
@@ -146,6 +146,67 @@ router.get('/',
     }
   }
 );
+
+/**
+ * @openapi
+ * /api/v1/estudiantes/buscar/{value}:
+ *  get:
+ *    summary: Busca estudiantes por nombre, apellido o código estudiantil
+ *    tags: [Estudiante]
+ *    description: Usuarios con acceso [Profesor, Profesional de salud, Administrador]
+ *    parameters:
+ *      - in: path
+ *        name: value
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Nombre, apellido o código estudiantil del estudiante
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *          minimum: 0
+ *          default: 20
+ *        required: false
+ *        description: Número máximo de resultados a devolver
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Número de resultados a saltar antes de empezar a devolver resultados
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    responses:
+ *      200:
+ *        description: Estudiantes encontrados
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Estudiante'
+ *      401:
+ *        description: Unauthorized
+ *      404:
+ *        description: Estudiante no encontrado
+ */
+router.get('/buscar/:value',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
+  async (req, res, next) => {
+    try {
+      const { value } = req.params;
+      const { limit, offset } = req.query;
+      const estudiantes = await service.findByNameOrCode(value, { limit, offset });
+      res.json(estudiantes);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 
 /**
  * @openapi

@@ -83,7 +83,7 @@ class ProfesoresService {
     return profesor;
   }
 
-  //Encontrar la info asignadas a un profesor sgun su token
+  //Encontrar la info asignadas a un profesor segun su token
   async findByUser(userId) {
     const profesor = await sequelize.models.Profesor.findOne({
       where: {
@@ -95,12 +95,11 @@ class ProfesoresService {
           attributes: ['id', 'email', 'role']
         }]
     });
-    console.log(profesor)
     return profesor;
   }
 
 
-  //Actualizar la info de un estudiante
+  //Actualizar la info de un profesor
   async update(id, changes) {
     const profesor = await this.findOne(id);
     const rta = await profesor.update(changes);

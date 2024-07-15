@@ -141,6 +141,7 @@ router.get('/',
   validatorHandler(queryProfesorSchema, 'params'),
   async (req, res, next) => {
     try {
+      console.log("get / its me")
       const profesor = await service.find(req.query);
       res.status(200).json(profesor);
     } catch (error) {
@@ -153,7 +154,7 @@ router.get('/',
  * @openapi
  * /api/v1/profesores/{id}:
  *  get:
- *    summary: retorna un profesore
+ *    summary: retorna un profesor
  *    tags: [Profesor]
  *    description: Usuarios con acceso [Profesor, Administrador]
  *    parameters:
@@ -187,6 +188,7 @@ router.get('/:id',
   async (req, res, next) => {
     try {
       const { id } = req.params;
+      console.log("get /id its me")
       const profesor = await service.findOne(id);
       res.json(profesor);
     } catch (error) {
@@ -194,6 +196,8 @@ router.get('/:id',
     }
   }
 );
+
+
 
 /**
  * @openapi
@@ -229,6 +233,7 @@ router.post('/',
       const email = req.body.user.email;
       const codigo = req.body.codigoInstitucional;
       const body = req.body;
+      console.log("post / its me")
       const newProfesor = await service.create(body, email, codigo);
       res.status(201).json(newProfesor);
     } catch (error) {
@@ -278,6 +283,7 @@ router.patch('/:id',
     try {
       const { id } = req.params;
       const body = req.body;
+      console.log("patch /id its me")
       const profesor = await service.update(id, body);
       res.json(profesor);
     } catch (error) {
@@ -319,6 +325,7 @@ router.patch('/',
     try {
       const user = req.user;
       const body = req.body;
+      console.log("patch /its me")
       const Profesor = await service.updateToken(user.sub, body);
       res.json(Profesor);
     } catch (error) {
@@ -367,6 +374,7 @@ router.delete('/:id',
   async (req, res, next) => {
     try {
       const { id } = req.params;
+      console.log("delete /id its me")
       await service.delete(id);
       res.status(201).json({id});
     } catch (error) {

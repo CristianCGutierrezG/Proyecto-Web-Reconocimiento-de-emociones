@@ -2,9 +2,9 @@ import express from 'express';
 import passport from 'passport';
 
 import { checkRoles } from '../middlewares/auth.handler.js';
-import { MateriasService } from '../services/materias.service.js'; 
+import { MateriasService } from '../services/materias.service.js';
 import { validatorHandler } from './../middlewares/validator.handler.js';
-import { updateMateriasSchema, createMateriasSchema, getMateriasSchema, queryMateriaSchema, addInscripcionSchema } from '../schemas/materias.schema.js'; 
+import { updateMateriasSchema, createMateriasSchema, getMateriasSchema, queryMateriaSchema, addInscripcionSchema } from '../schemas/materias.schema.js';
 
 /** 
  * Define los diferentes rutas o endpoint para los datos de una materia
@@ -102,7 +102,7 @@ const service = new MateriasService();
  *        description: Unauthorized
  */
 router.get('/',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Estudiante', 'Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(queryMateriaSchema, 'params'),
   async (req, res, next) => {
@@ -114,6 +114,65 @@ router.get('/',
     }
   }
 );
+
+/**
+ * @openapi
+ * /api/v1/materias/buscar/{value}:
+ *  get:
+ *    summary: Busca materias por nombre o nombre del profesor
+ *    tags: [Materia]
+ *    description: Usuarios con acceso [Estudiante, Profesor, Administrador]
+ *    parameters:
+ *      - in: path
+ *        name: value
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Nombre de la materia o nombre del profesor
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Número máximo de resultados a devolver
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Número de resultados a saltar antes de empezar a devolver resultados
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    responses:
+ *      200:
+ *        description: Materias encontradas
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Materia'
+ *      401:
+ *        description: Unauthorized
+ *      404:
+ *        description: Materia no encontrada
+ */
+router.get('/buscar/:value',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('Estudiante', 'Profesor', 'Administrador'),
+  async (req, res, next) => {
+    try {
+      const { value } = req.params;
+      const { limit, offset } = req.query;
+      const materias = await service.findByNameOrProfessor(value, { limit, offset });
+      res.json(materias);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 
 /**
  * @openapi
@@ -147,7 +206,7 @@ router.get('/',
  *        description: Materia no encontrada
  */
 router.get('/:id',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Estudiante', 'Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(getMateriasSchema, 'params'),
   async (req, res, next) => {
@@ -187,14 +246,14 @@ router.get('/:id',
  *        description: Conflicto - Materia ya existente
  */
 router.post('/',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Profesor'),
   validatorHandler(createMateriasSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
       const user = req.user
-      const newMaterias = await service. createProfesor(body, user.sub);
+      const newMaterias = await service.createProfesor(body, user.sub);
       res.status(201).json(newMaterias);
     } catch (error) {
       next(error);
@@ -229,13 +288,13 @@ router.post('/',
  *        description: Conflicto - Materia ya existente
  */
 router.post('/',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Administrador'),
   validatorHandler(createMateriasSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
-      const newMaterias = await service. create(body);
+      const newMaterias = await service.create(body);
       res.status(201).json(newMaterias);
     } catch (error) {
       next(error);
@@ -269,7 +328,7 @@ router.post('/',
  *        description: Conflicto - Inscripcion ya existente
  */
 router.post('/add-inscripcionToken',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Estudiante'),
   validatorHandler(addInscripcionSchema, 'body'),
   async (req, res, next) => {
@@ -310,7 +369,7 @@ router.post('/add-inscripcionToken',
  *        description: Conflicto - Inscripcion ya existente
  */
 router.post('/add-inscripcion',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Profesor', 'Administrador'),
   validatorHandler(addInscripcionSchema, 'body'),
   async (req, res, next) => {
@@ -357,7 +416,7 @@ router.post('/add-inscripcion',
  *        description: Materia no encontrada
  */
 router.patch('/:id',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Profesor', 'Administrador'),
   validatorHandler(getMateriasSchema, 'params'),
   validatorHandler(updateMateriasSchema, 'body'),
@@ -407,19 +466,19 @@ router.patch('/:id',
  *        description: Materia no encontrada
  */
 router.delete('/:id',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Profesor', 'Administrador'),
   validatorHandler(getMateriasSchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
       await service.delete(id);
-      res.status(201).json({id});
+      res.status(201).json({ id });
     } catch (error) {
       next(error);
     }
   }
 );
 
-export {router};
+export { router };
 
