@@ -3,11 +3,11 @@ import passport from 'passport';
 
 import {EmocionService} from '../services/emocion.service.js';
 import { MateriasService } from '../services/materias.service.js';
-import { EstudiantesService } from '../services/estudiante.service.js'; 
+import { EstudiantesService } from '../services/estudiante.service.js';
 import { ProfesoresService } from '../services/profesor.service.js';
 import {ProSaludService} from '../services/proSalud.service.js'
 
-/** 
+/**
  * Define los diferentes rutas o endpoint para opciones de obtener datos relacionados con el perfil del usuario
  * Comprobaciones.
  *  - Llave de acceso a la API
@@ -23,14 +23,14 @@ const serviceProfesor= new ProfesoresService();
 const serviceProSalud= new ProSaludService();
 
 /**
- * 
+ *
  * @swagger
  * components:
  *  securitySchemes:
  *    ApiKeyAuth:
  *      type: apiKey
  *      in: header
- *      name: api   
+ *      name: api
  *    BearerAuth:
  *      type: http
  *      scheme: bearer
@@ -40,7 +40,7 @@ const serviceProSalud= new ProSaludService();
  * @openapi
  * /api/v1/profile/estudiante-emociones:
  *  get:
- *    summary: Encuetra las emociones del estudiante segun el token de acceso
+ *    summary: Encuentra las emociones del estudiante según el token de acceso
  *    tags: [Profile]
  *    security:
  *      - ApiKeyAuth: []
@@ -48,23 +48,35 @@ const serviceProSalud= new ProSaludService();
  *    parameters:
  *      - in: query
  *        name: limit
- *        description: numero de items a recibir
- *        schema:   
+ *        description: Número de items a recibir
+ *        schema:
  *          type: integer
  *          minimum: 0
  *          default: 20
  *      - in: query
  *        name: offset
- *        description: el punto de inicio de los datos
+ *        description: El punto de inicio de los datos
  *        schema:
- *          type: integer 
- *          minimum: 0  
+ *          type: integer
+ *          minimum: 0
  *          default: 0
+ *      - in: query
+ *        name: startDate
+ *        description: Fecha de inicio del rango (YYYY-MM-DD)
+ *        schema:
+ *          type: string
+ *          format: date
+ *      - in: query
+ *        name: endDate
+ *        description: Fecha de fin del rango (YYYY-MM-DD)
+ *        schema:
+ *          type: string
+ *          format: date
  *    responses:
  *      200:
- *        description: las emociones de un estudiante especifico
+ *        description: Las emociones de un estudiante específico
  *        content:
- *          aplication/json:
+ *          application/json:
  *            schema:
  *              type: array
  *              items:
@@ -85,6 +97,7 @@ router.get(
     }
   }
 );
+
 
 /**
  * @openapi

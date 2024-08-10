@@ -5,9 +5,9 @@ import {EstudiantesService} from '../services/estudiante.service.js'
 import {validatorHandler} from '../middlewares/validator.handler.js'
 import { createEstudianteSchema, updateEstudianteSchema, getEstudianteSchema, queryEstudianteSchema } from '../schemas/estudiante.schema.js';
 import { checkRoles } from '../middlewares/auth.handler.js';
-import { checkApiKey } from '../middlewares/auth.handler.js';  
+import { checkApiKey } from '../middlewares/auth.handler.js';
 
-/** 
+/**
  * Define los diferentes rutas o endpoint para los datos de un Estudiante
  * Comprobaciones.
  *  - Llave de acceso a la API
@@ -19,7 +19,7 @@ const router = express.Router();
 const service = new EstudiantesService();
 
 /**
- * 
+ *
  * @swagger
  * components:
  *  schemas:
@@ -35,11 +35,11 @@ const service = new EstudiantesService();
  *        fechaNacimiento:
  *          type: string
  *          format: date
- *          description: fecha de nacimiento 
+ *          description: fecha de nacimiento
  *        codigoInstitucional:
  *          type: number
  *          format: int64
- *          description: codigo unico asignado en la institución 
+ *          description: codigo unico asignado en la institución
  *        user:
  *          type: object
  *          properties:
@@ -75,21 +75,21 @@ const service = new EstudiantesService();
  *        fechaNacimiento:
  *          type: string
  *          format: date
- *          description: fecha de nacimiento 
+ *          description: fecha de nacimiento
  *        codigoInstitucional:
  *          type: number
  *          format: int64
- *          description: codigo unico asignado en la institución 
+ *          description: codigo unico asignado en la institución
  *      example:
  *        nombres: Juan
  *        apellidos: Perez
  *        fechaNacimiento: 1990-01-01
- *        codigoInstitucional: 123456789      
+ *        codigoInstitucional: 123456789
  *  securitySchemes:
  *    ApiKeyAuth:
  *      type: apiKey
  *      in: header
- *      name: api   
+ *      name: api
  *    BearerAuth:
  *      type: http
  *      scheme: bearer
@@ -106,7 +106,7 @@ const service = new EstudiantesService();
  *      - in: query
  *        name: limit
  *        description: numero de items a recibir
- *        schema:   
+ *        schema:
  *          type: integer
  *          minimum: 0
  *          default: 20
@@ -114,8 +114,8 @@ const service = new EstudiantesService();
  *        name: offset
  *        description: el punto de inicio de los datos
  *        schema:
- *          type: integer 
- *          minimum: 0  
+ *          type: integer
+ *          minimum: 0
  *          default: 0
  *    security:
  *      - ApiKeyAuth: []
@@ -258,24 +258,38 @@ router.get('/:id',
  * @openapi
  * /api/v1/estudiantes/{id}/emociones:
  *  get:
- *    summary: retorna a las emociones del estudiante con un respectivo id
+ *    summary: Retorna las emociones del estudiante con un respectivo id en un rango de fechas
  *    tags: [Estudiante]
-*    description: Usuarios con acceso [Profesor, Profesional de salud, Administrador]
+ *    description: Usuarios con acceso [Profesor, Profesional de salud, Administrador]
  *    parameters:
  *      - in: path
  *        name: id
  *        schema:
  *          type: integer
  *        required: true
- *        description: el id del estudiante
+ *        description: El ID del estudiante
+ *      - in: query
+ *        name: startDate
+ *        schema:
+ *          type: string
+ *          format: date-time
+ *        required: false
+ *        description: Fecha de inicio para el rango de búsqueda
+ *      - in: query
+ *        name: endDate
+ *        schema:
+ *          type: string
+ *          format: date-time
+ *        required: false
+ *        description: Fecha de fin para el rango de búsqueda
  *    security:
  *      - ApiKeyAuth: []
  *      - BearerAuth: []
  *    responses:
  *      200:
- *        description: todos los estudiantes
+ *        description: Todas las emociones del estudiante en el rango de fechas
  *        content:
- *          aplication/json:
+ *          application/json:
  *            schema:
  *              type: array
  *              items:
@@ -286,14 +300,15 @@ router.get('/:id',
  *        description: Usuario no encontrado
  */
 router.get('/:id/emociones',
-  passport.authenticate('jwt', {session: false}),
+  passport.authenticate('jwt', { session: false }),
   checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const Estudiante = await service.findOneByEmociones(id);
-      res.json(Estudiante);
+      const { startDate, endDate } = req.query;
+      const estudiante = await service.findOneByEmociones(id, startDate, endDate);
+      res.json(estudiante);
     } catch (error) {
       next(error);
     }
@@ -332,7 +347,7 @@ router.get('/:id/emociones',
  *        description: Usuario no encontrado
  */
 router.get('/:id/materias',
-passport.authenticate('jwt', {session: false}), 
+passport.authenticate('jwt', {session: false}),
 checkRoles('Profesional de salud', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   async (req, res, next) => {
@@ -367,7 +382,7 @@ checkRoles('Profesional de salud', 'Administrador'),
  *        description: nuevo estudiante creado!
  *      401:
  *        description: Unauthorized
- *      409: 
+ *      409:
  *        description: Conflicto - estudiante ya existente
  */
 router.post('/',
@@ -392,7 +407,7 @@ router.post('/',
  *    summary: actualiza un estudiante segun su id
  *    tags: [Estudiante]
  *    description: Usuarios con acceso [Administrador]
- *    parameters: 
+ *    parameters:
  *      - in: path
  *        name: id
  *        schema:
@@ -411,7 +426,7 @@ router.post('/',
  *            $ref: '#/components/schemas/EstudianteUpdate'
  *    responses:
  *      200:
- *        description: estudiante actualizado 
+ *        description: estudiante actualizado
  *      401:
  *        description: Unauthorized
  *      404:
@@ -454,7 +469,7 @@ router.patch('/:id',
  *            $ref: '#/components/schemas/EstudianteUpdate'
  *    responses:
  *      200:
- *        description: estudiante actualizado 
+ *        description: estudiante actualizado
  *      401:
  *        description: Unauthorized
  *      404:
@@ -484,7 +499,7 @@ router.patch('/',
  *    summary: elimina un estudiante
  *    tags: [Estudiante]
  *    description: Usuarios con acceso [Administrador]
- *    parameters: 
+ *    parameters:
  *      - in: path
  *        name: id
  *        schema:
@@ -496,7 +511,7 @@ router.patch('/',
  *      - BearerAuth: []
  *    responses:
  *      201:
- *        description: usuario eliminado 
+ *        description: usuario eliminado
  *        content:
  *          aplication/json:
  *            schema:
