@@ -6,7 +6,7 @@ import Joi from 'joi'
 */
 
 const id = Joi.number().integer();
-const validEmociones = ['Enojado', 'Disgustado', 'Miedoso', 'Feliz', "Triste", "Sorprendido"];
+const validEmociones = ['Enojado', 'Disgustado', 'Miedoso', 'Feliz', "Triste", "Sorprendido", "Neutral"];
 const estudianteId = Joi.number().integer();
 
 //Schema para crear una emoción

@@ -2,7 +2,7 @@ import { sequelize } from '../../libs/sequelize.js';
 import { faker } from '@faker-js/faker';
 
 const studentId = 2; // ID del estudiante para el que se guardarán las emociones
-const validEmociones = ['Enojado', 'Disgustado', 'Miedoso', 'Feliz', "Triste", "Sorprendido"];
+const validEmociones = ['Enojado', 'Disgustado', 'Miedoso', 'Feliz', "Triste", "Sorprendido", "Neutral"];
 
 // Función para generar una emoción aleatoria
 function generateEmocion() {
