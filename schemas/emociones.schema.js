@@ -1,15 +1,15 @@
 import Joi from 'joi'
 
-/** 
+/**
  * Define los diferentes schemas con los tipos de datos permitidos
  * para la validacion de datos de las emociones
-*/ 
+*/
 
 const id = Joi.number().integer();
-const validEmociones = ['Feliz', 'Triste', 'Furioso', 'Enojado'];
+const validEmociones = ['Enojado', 'Disgustado', 'Miedoso', 'Feliz', "Triste", "Sorprendido"];
 const estudianteId = Joi.number().integer();
 
-//Schema para crear una emoción 
+//Schema para crear una emoción
 const createEmocionSchema = Joi.object({
   emocion: Joi.string().valid(...validEmociones).required()
 });
