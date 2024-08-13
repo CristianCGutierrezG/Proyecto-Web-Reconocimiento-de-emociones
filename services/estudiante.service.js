@@ -96,7 +96,7 @@ class EstudiantesService {
     return estudiante;
   }
 
-  // Encontrar las emociones asignadas a un estudiante según su token, filtradas por un rango de fechas
+  // Encontrar las emociones asignadas a un estudiante según su id, filtradas por un rango de fechas
   async findOneByEmociones(id, startDate, endDate) {
     const options = {
       include: [
@@ -126,22 +126,37 @@ class EstudiantesService {
     return estudiante;
   }
 
-  //Encontrar las materias asignadas a un estudiante sgun su token
-  async findOneByMaterias(id) {
-    const estudiante = await sequelize.models.Estudiante.findByPk(id, {
-      include: [
-        {
-          model: sequelize.models.Materias,
-          as: 'inscritos',
-          through: { attributes: ['id'] },
-        },
-      ],
-    });
-    if (!estudiante) {
-      throw boom.notFound('Estudiante no encontrado');
-    }
-    return estudiante;
+  //Encontrar las materias asignadas a un estudiante sgun su id
+ async findOneByMaterias(id) {
+  const estudiante = await sequelize.models.Estudiante.findByPk(id, {
+    include: [
+      {
+        model: sequelize.models.Materias,
+        as: 'inscritos',
+        through: { attributes: ['id'] },
+        attributes: ['id', 'nombre', 'grupo'],
+        include: [
+          {
+            association: 'horarios',
+            attributes: ['dia', 'horaInicio', 'horaFin'],
+          },
+          {
+            association: 'profesor',
+            attributes: {
+              exclude: ['fechaNacimiento', 'createdAt', 'userId', 'activo']
+              }
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!estudiante) {
+    throw boom.notFound('Estudiante no encontrado');
   }
+
+  return estudiante;
+}
 
   //Encontrar un estudiante segun su nombre o codigo estudiantil
   async findByNameOrCode(value, query) {

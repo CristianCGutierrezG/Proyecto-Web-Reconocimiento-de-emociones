@@ -1,24 +1,24 @@
-import  boom  from '@hapi/boom';
-import  { sequelize, Op }  from '../libs/sequelize.js';
+import boom from '@hapi/boom';
+import { sequelize, Op } from '../libs/sequelize.js';
 
 /**
  * Define las diferentes interaciones con la base de datos
  * para el API-REST,con la ayuda de sequileze en el modelo Materias
  * Obtiene los datos de la BD y los retorna
-*/
+ */
 
 class MateriasService {
   constructor() {}
 
   //Creacion de una materia en la BD con base al id de un profesor
-  async create(data){
+  async create(data) {
     const existingMateria = await sequelize.models.Materias.findOne({
       where: {
         nombre: data.nombre,
-        grupo: data.grupo
-      }
+        grupo: data.grupo,
+      },
     });
-  
+
     // Si ya existe una materia con los mismos datos, lanzar un error
     if (existingMateria) {
       throw new Error('Ya existe una materia con estos datos');
@@ -36,48 +36,52 @@ class MateriasService {
     const profesor = await sequelize.models.Profesor.findOne({
       where: { userId },
     });
-  
+
     // Verificar si el profesor existe
     if (!profesor) {
       throw boom.notFound('Profesor no encontrado');
     }
-  
+
     // Verificar si ya existe una materia con los mismos datos
     const existingMateria = await sequelize.models.Materias.findOne({
       where: {
         nombre: data.nombre,
-        grupo: data.grupo
-      }
+        grupo: data.grupo,
+      },
     });
-  
+
     // Si ya existe una materia con los mismos datos, lanzar un error
     if (existingMateria) {
       throw new Error('Ya existe una materia con estos datos');
     }
-  
+
     // Si el profesor existe y no existe una materia con los mismos datos, crear una nueva materia
     const newMateria = await sequelize.models.Materias.create({
       ...data,
-      profesorId: profesor.id
+      profesorId: profesor.id,
     });
-  
+
     return newMateria;
   }
 
   //Añade la relacion entre un estudiante y una materia segun el id
-  async addInscripcion(data){
-    const inscripcionExistente = await sequelize.models.EstudiantesMaterias.findOne({
-      where: {
-        materiaId: data.materiaId,
-        estudianteId: data.estudianteId
-      }
-    });
-  
+  async addInscripcion(data) {
+    const inscripcionExistente =
+      await sequelize.models.EstudiantesMaterias.findOne({
+        where: {
+          materiaId: data.materiaId,
+          estudianteId: data.estudianteId,
+        },
+      });
+
     // Si ya existe una inscripción para el estudiante y la materia, no se crea una nueva
     if (inscripcionExistente) {
-      throw new Error('Ya existe una inscripción para este estudiante y materia.');
+      throw new Error(
+        'Ya existe una inscripción para este estudiante y materia.',
+      );
     }
-    const newInscripcion = await sequelize.models.EstudiantesMaterias.create(data); 
+    const newInscripcion =
+      await sequelize.models.EstudiantesMaterias.create(data);
     return newInscripcion;
   }
 
@@ -85,17 +89,18 @@ class MateriasService {
   async addInscripcionToken(data, userId) {
     const estudiante = await sequelize.models.Estudiante.findOne({
       where: { userId },
-    })
-    if(!estudiante){
+    });
+    if (!estudiante) {
       throw boom.notFound('Estudiante no encontrado');
     }
-    const inscripcionExistente = await sequelize.models.EstudiantesMaterias.findOne({
-      where: {
-        materiaId: data.materiaId,
-        estudianteId: estudiante.dataValues.id
-      }
-    });
-  
+    const inscripcionExistente =
+      await sequelize.models.EstudiantesMaterias.findOne({
+        where: {
+          materiaId: data.materiaId,
+          estudianteId: estudiante.dataValues.id,
+        },
+      });
+
     // Si ya existe una inscripción para el estudiante y la materia, no se crea una nueva
     if (inscripcionExistente) {
       throw new Error('Ya estas inscrito');
@@ -103,9 +108,10 @@ class MateriasService {
 
     const newData = {
       ...data,
-      estudianteId: estudiante.dataValues.id
-    }
-    const newInscripcion = await sequelize.models.EstudiantesMaterias.create(newData); 
+      estudianteId: estudiante.dataValues.id,
+    };
+    const newInscripcion =
+      await sequelize.models.EstudiantesMaterias.create(newData);
     return newInscripcion;
   }
 
@@ -117,14 +123,14 @@ class MateriasService {
         {
           association: 'profesor',
           attributes: {
-          exclude: ['fechaNacimiento', 'createdAt', 'userId', 'id'] 
-          }
+            exclude: ['fechaNacimiento', 'createdAt', 'userId', 'id'],
+          },
         },
         {
-          association:'horarios',
-          attributes: ['dia', 'horaInicio','horaFin']
-        }
-      ]   
+          association: 'horarios',
+          attributes: ['dia', 'horaInicio', 'horaFin'],
+        },
+      ],
     };
     const { limit, offset } = query;
     if (limit && offset) {
@@ -135,15 +141,21 @@ class MateriasService {
     return materias;
   }
 
-  //Encontrar una materia que coincida con el id 
+  //Encontrar una materia que coincida con el id
   async findOne(id) {
     const materias = await sequelize.models.Materias.findByPk(id, {
-      include: [{ 
-        association: 'inscritos',
-        attributes:  ['nombres', 'apellidos', 'codigoInstitucional']
-      }]
+      include: [
+        {
+          association: 'inscritos',
+          attributes: ['nombres', 'apellidos', 'codigoInstitucional'],
+        },
+        {
+          association: 'horarios',
+          attributes: ['dia', 'horaInicio', 'horaFin'],
+        },
+      ],
     });
-    if(!materias){
+    if (!materias) {
       throw boom.notFound('Materia no encontrado');
     }
     return materias;
@@ -153,19 +165,31 @@ class MateriasService {
   async findByEstudiante(userId) {
     const materias = await sequelize.models.Materias.findAll({
       where: {
-        '$inscritos.user.id$' :userId
+        '$inscritos.user.id$': userId,
       },
-      include: [{
-        association: 'inscritos',
-        attributes: {
-          exclude: ['fechaNacimiento', 'createdAt'] 
+      include: [
+        {
+          association: 'inscritos',
+          attributes: ['id'],
+          include: [
+            {
+              model: sequelize.models.User,
+              as: 'user',
+              attributes: ['email'],
+            },
+          ],
         },
-        include: [{ 
-          model: sequelize.models.User, 
-          as: 'user',
-          attributes: ['email', 'role']
-        }]
-      }]
+        {
+          association: 'horarios',
+          attributes: ['dia', 'horaInicio', 'horaFin'],
+        },
+        {
+          association: 'profesor',
+          attributes: {
+            exclude: ['fechaNacimiento', 'createdAt', 'userId', 'activo']
+            }
+        },
+      ],
     });
     return materias;
   }
@@ -174,17 +198,21 @@ class MateriasService {
   async findByProfesor(userId) {
     const materias = await sequelize.models.Materias.findAll({
       where: {
-        '$profesor.user.id$' :userId
+        '$profesor.user.id$': userId,
       },
-      include: [{
-        association: 'profesor',
-        attributes: ['nombres', 'apellidos', 'codigoInstitucional'],
-        include: [{ 
-          model: sequelize.models.User, 
-          as: 'user',
-          attributes: ['email', 'role']
-        }]
-      }]
+      include: [
+        {
+          association: 'profesor',
+          attributes: ['nombres', 'apellidos', 'codigoInstitucional'],
+          include: [
+            {
+              model: sequelize.models.User,
+              as: 'user',
+              attributes: ['email', 'role'],
+            },
+          ],
+        },
+      ],
     });
     return materias;
   }
@@ -196,33 +224,37 @@ class MateriasService {
     // Construir la condición de búsqueda
     let searchConditions = [];
     if (values.length > 1) {
-      searchConditions = values.map(v => ({
+      searchConditions = values.map((v) => ({
         [Op.or]: [
           { nombre: { [Op.like]: `%${v}%` } },
           { '$profesor.nombres$': { [Op.like]: `%${v}%` } },
-          { '$profesor.apellidos$': { [Op.like]: `%${v}%` } }
-        ]
+          { '$profesor.apellidos$': { [Op.like]: `%${v}%` } },
+        ],
       }));
     } else {
       searchConditions = [
         { nombre: { [Op.like]: `%${value}%` } },
         { '$profesor.nombres$': { [Op.like]: `%${value}%` } },
-        { '$profesor.apellidos$': { [Op.like]: `%${value}%` } }
+        { '$profesor.apellidos$': { [Op.like]: `%${value}%` } },
       ];
     }
 
     // Construir opciones de consulta
     const options = {
       where: {
-        [Op.or]: searchConditions
+        [Op.or]: searchConditions,
       },
       include: [
         {
           model: sequelize.models.Profesor,
           as: 'profesor',
-          attributes: ['id', 'nombres', 'apellidos']
-        }
-      ]
+          attributes: ['id', 'nombres', 'apellidos'],
+        },
+        {
+          association: 'horarios',
+          attributes: ['dia', 'horaInicio', 'horaFin'],
+        },
+      ],
     };
 
     const { limit, offset } = query;
@@ -251,17 +283,17 @@ class MateriasService {
   //Eliminar un profesor
   async delete(id) {
     const materia = await this.findOne(id);
-  
+
     // Eliminar a todos los estudiantes inscritos
     await sequelize.models.EstudiantesMaterias.destroy({
       where: {
-        materiaId: id
-      }
+        materiaId: id,
+      },
     });
-  
+
     await materia.destroy();
     return { id };
   }
 }
 
-export {MateriasService};
+export { MateriasService };

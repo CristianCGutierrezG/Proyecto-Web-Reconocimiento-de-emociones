@@ -6,7 +6,7 @@ import { createProfesorSchema, updateProfesorSchema, getProfesorSchema, queryPro
 import {validatorHandler} from '../middlewares/validator.handler.js';
 import { checkRoles } from '../middlewares/auth.handler.js';
 
-/** 
+/**
  * Define los diferentes rutas o endpoint para los datos de un Profesor
  * Comprobaciones.
  *  - Llave de acceso a la API
@@ -18,7 +18,7 @@ const router = express.Router();
 const service = new ProfesoresService();
 
 /**
- * 
+ *
  * @swagger
  * components:
  *  schemas:
@@ -34,11 +34,11 @@ const service = new ProfesoresService();
  *        fechaNacimiento:
  *          type: string
  *          format: date
- *          description: fecha de nacimiento 
+ *          description: fecha de nacimiento
  *        codigoInstitucional:
  *          type: number
  *          format: int64
- *          description: fecha de nacimiento 
+ *          description: fecha de nacimiento
  *        user:
  *          type: object
  *          properties:
@@ -78,7 +78,7 @@ const service = new ProfesoresService();
  *        fechaNacimiento:
  *          type: string
  *          format: date
- *          description: fecha de nacimiento 
+ *          description: fecha de nacimiento
  *        codigoInstitucional:
  *          type: number
  *          format: int64
@@ -87,12 +87,12 @@ const service = new ProfesoresService();
  *        nombres: Juan
  *        apellidos: Perez
  *        fechaNacimiento: 1990-01-01
- *        codigoInstitucional: 123456789      
+ *        codigoInstitucional: 123456789
  *  securitySchemes:
  *    ApiKeyAuth:
  *      type: apiKey
  *      in: header
- *      name: api   
+ *      name: api
  *    BearerAuth:
  *      type: http
  *      scheme: bearer
@@ -109,7 +109,7 @@ const service = new ProfesoresService();
  *      - in: query
  *        name: limit
  *        description: numero de items a recibir
- *        schema:   
+ *        schema:
  *          type: integer
  *          minimum: 0
  *          default: 20
@@ -117,8 +117,8 @@ const service = new ProfesoresService();
  *        name: offset
  *        description: el punto de inicio de los datos
  *        schema:
- *          type: integer 
- *          minimum: 0  
+ *          type: integer
+ *          minimum: 0
  *          default: 0
  *    security:
  *      - ApiKeyAuth: []
@@ -163,7 +163,7 @@ router.get('/',
  *        schema:
  *          type: integer
  *        required: true
- *        description: el id del estudiante
+ *        description: el id del profesor
  *    security:
  *      - ApiKeyAuth: []
  *      - BearerAuth: []
@@ -221,7 +221,7 @@ router.get('/:id',
  *        description: nuevo profesor creado!
  *      401:
  *        description: Unauthorized
- *      409: 
+ *      409:
  *        description: Conflicto - profesor ya existente
  */
 router.post('/',
@@ -249,7 +249,7 @@ router.post('/',
  *    summary: actualiza un profesor segun su id
  *    tags: [Profesor]
  *    description: Usuarios con acceso [Administrador]
- *    parameters: 
+ *    parameters:
  *      - in: path
  *        name: id
  *        schema:
@@ -268,7 +268,7 @@ router.post('/',
  *            $ref: '#/components/schemas/ProfesorUpdate'
  *    responses:
  *      200:
- *        description: Profesor actualizado 
+ *        description: Profesor actualizado
  *      401:
  *        description: Unauthorized
  *      404:
@@ -311,7 +311,7 @@ router.patch('/:id',
  *            $ref: '#/components/schemas/ProfesorUpdate'
  *    responses:
  *      200:
- *        description: Profesor actualizado 
+ *        description: Profesor actualizado
  *      401:
  *        description: Unauthorized
  *      404:
@@ -341,7 +341,7 @@ router.patch('/',
  *    summary: elimina un profesor
  *    tags: [Profesor]
  *    description: Usuarios con acceso [Administrador]
- *    parameters: 
+ *    parameters:
  *      - in: path
  *        name: id
  *        schema:
@@ -353,7 +353,7 @@ router.patch('/',
  *      - BearerAuth: []
  *    responses:
  *      201:
- *        description: usuario eliminado 
+ *        description: usuario eliminado
  *        content:
  *          aplication/json:
  *            schema:
