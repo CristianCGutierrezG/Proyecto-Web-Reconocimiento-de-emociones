@@ -321,7 +321,7 @@ router.get('/:id/emociones',
  *  get:
  *    summary: retorna a las materias del estudiante con un respectivo id
  *    tags: [Estudiante]
- *    description: Usuarios con acceso [Profesional de salud, Administrador]
+ *    description: Usuarios con acceso [Profesor, Profesional de salud, Administrador]
  *    parameters:
  *      - in: path
  *        name: id
@@ -348,7 +348,7 @@ router.get('/:id/emociones',
  */
 router.get('/:id/materias',
 passport.authenticate('jwt', {session: false}),
-checkRoles('Profesional de salud', 'Administrador'),
+checkRoles('Profesor', 'Profesional de salud', 'Administrador'),
   validatorHandler(getEstudianteSchema, 'params'),
   async (req, res, next) => {
     try {
