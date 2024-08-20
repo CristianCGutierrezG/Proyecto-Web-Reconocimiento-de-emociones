@@ -218,10 +218,8 @@ class MateriasService {
   }
 
   async findByNameOrProfessor(value, query) {
-    // Separar el value en palabras
     const values = value.split(' ');
 
-    // Construir la condición de búsqueda
     let searchConditions = [];
     if (values.length > 1) {
       searchConditions = values.map((v) => ({
@@ -232,14 +230,15 @@ class MateriasService {
         ],
       }));
     } else {
-      searchConditions = [
-        { nombre: { [Op.like]: `%${value}%` } },
-        { '$profesor.nombres$': { [Op.like]: `%${value}%` } },
-        { '$profesor.apellidos$': { [Op.like]: `%${value}%` } },
-      ];
+      searchConditions = {
+        [Op.or]: [
+          { nombre: { [Op.like]: `%${value}%` } },
+          { '$profesor.nombres$': { [Op.like]: `%${value}%` } },
+          { '$profesor.apellidos$': { [Op.like]: `%${value}%` } },
+        ],
+      };
     }
 
-    // Construir opciones de consulta
     const options = {
       where: {
         [Op.or]: searchConditions,
@@ -255,15 +254,15 @@ class MateriasService {
           attributes: ['dia', 'horaInicio', 'horaFin'],
         },
       ],
+      subQuery: false,
     };
 
     const { limit, offset } = query;
     if (limit && offset) {
-      options.limit = parseInt(limit, 10);
-      options.offset = parseInt(offset, 10);
+      options.limit = limit;
+      options.offset = offset;
     }
 
-    // Búsqueda
     const materias = await sequelize.models.Materias.findAll(options);
 
     if (materias.length === 0) {
@@ -272,6 +271,8 @@ class MateriasService {
 
     return materias;
   }
+
+
 
   //Actualizar la info de una materia
   async update(id, changes) {
