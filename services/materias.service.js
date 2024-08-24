@@ -8,7 +8,7 @@ import { sequelize, Op } from '../libs/sequelize.js';
  */
 
 class MateriasService {
-  constructor() {}
+  constructor() { }
 
   //Creacion de una materia en la BD con base al id de un profesor
   async create(data) {
@@ -32,6 +32,8 @@ class MateriasService {
   //Relacionado con la info de su profesor asignado
   //Creado a traves del token de un profesor
   async createProfesor(data, userId) {
+    const { nombre, grupo, horarios } = data;
+
     // Buscar el profesor asociado al usuario
     const profesor = await sequelize.models.Profesor.findOne({
       where: { userId },
@@ -55,11 +57,22 @@ class MateriasService {
       throw new Error('Ya existe una materia con estos datos');
     }
 
-    // Si el profesor existe y no existe una materia con los mismos datos, crear una nueva materia
+    // Crear una nueva materia
     const newMateria = await sequelize.models.Materias.create({
-      ...data,
+      nombre,
+      grupo,
       profesorId: profesor.id,
     });
+
+    // Crear los horarios asociados si existen
+    if (data.horarios && data.horarios.length > 0) {
+      const horariosData = data.horarios.map(horario => ({
+        ...horario,
+        materiaId: newMateria.id,
+      }));
+
+      await sequelize.models.Horarios.bulkCreate(horariosData);
+    }
 
     return newMateria;
   }
@@ -187,7 +200,7 @@ class MateriasService {
           association: 'profesor',
           attributes: {
             exclude: ['fechaNacimiento', 'createdAt', 'userId', 'activo']
-            }
+          }
         },
       ],
     });
@@ -272,16 +285,29 @@ class MateriasService {
     return materias;
   }
 
-
-
-  //Actualizar la info de una materia
+  // Actualizar la info de una materia incluyendo horarios
   async update(id, changes) {
-    const materias = await this.findOne(id);
-    const rta = await materias.update(changes);
-    return rta;
+    const materia = await this.findOne(id);
+
+    // Actualizar la materia
+    const updatedMateria = await materia.update(changes);
+
+    // Si hay cambios en los horarios, primero eliminamos los horarios existentes
+    if (changes.horarios) {
+      await sequelize.models.Horarios.destroy({ where: { materiaId: id } });
+
+      // Crear los nuevos horarios
+      const horariosData = changes.horarios.map(horario => ({
+        ...horario,
+        materiaId: id,
+      }));
+      await sequelize.models.Horarios.bulkCreate(horariosData);
+    }
+
+    return updatedMateria;
   }
 
-  //Eliminar un profesor
+  //Eliminar una materia
   async delete(id) {
     const materia = await this.findOne(id);
 

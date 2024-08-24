@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import {createHorariosSchema}  from './horario.schema.js';
 
 /** 
  * Define los diferentes schemas con los tipos de datos permitidos
@@ -14,12 +15,14 @@ const estudianteId = Joi.number().integer();
 const activo = Joi.boolean();
 const limit = Joi.number().integer();
 const offset = Joi.number().integer();
+const horarios = Joi.array().items(createHorariosSchema).min(1);
 
 //Schema para crear una materia con el id de un profesor
 const createMateriasSchema = Joi.object({
   nombre: nombre.required(),
   grupo: grupo.required(),
-  profesorId
+  profesorId: profesorId.required(),
+  horarios: horarios
 });
 
 //Schema para actualizar una materia
@@ -27,7 +30,8 @@ const updateMateriasSchema = Joi.object({
   nombre,
   grupo,
   profesorId,
-  activo
+  activo, 
+  horarios
 });
 
 //Schema para obtener una materia por su id

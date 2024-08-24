@@ -222,7 +222,7 @@ router.get('/:id',
 
 /**
  * @openapi
- * /api/v1/materias:
+ * /api/v1/materias/token:
  *  post:
  *    summary: Crea una nueva materia con base al token de profesor 
  *    tags: [Materia]
@@ -245,10 +245,9 @@ router.get('/:id',
  *      409: 
  *        description: Conflicto - Materia ya existente
  */
-router.post('/',
+router.post('/token',
   passport.authenticate('jwt', { session: false }),
   checkRoles('Profesor'),
-  validatorHandler(createMateriasSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
@@ -419,7 +418,6 @@ router.patch('/:id',
   passport.authenticate('jwt', { session: false }),
   checkRoles('Profesor', 'Administrador'),
   validatorHandler(getMateriasSchema, 'params'),
-  validatorHandler(updateMateriasSchema, 'body'),
   async (req, res, next) => {
     try {
       const { id } = req.params;

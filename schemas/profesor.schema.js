@@ -41,7 +41,7 @@ const updateProfesorSchema = Joi.object({
   activo
 });
 
-//Schema para obtener un estudiante por su id
+//Schema para obtener un profesor por su id
 const getProfesorSchema = Joi.object({
   id: id.required(),
 });
