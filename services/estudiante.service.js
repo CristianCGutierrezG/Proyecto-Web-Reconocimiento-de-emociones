@@ -9,7 +9,7 @@ import { sequelize, Op } from '../libs/sequelize.js';
  */
 
 class EstudiantesService {
-  constructor() {}
+  constructor() { }
 
   //Creacion de un nuevo estudiante en la BD
   //Relacionado con la info de su usuario asignado
@@ -127,36 +127,38 @@ class EstudiantesService {
   }
 
   //Encontrar las materias asignadas a un estudiante sgun su id
- async findOneByMaterias(id) {
-  const estudiante = await sequelize.models.Estudiante.findByPk(id, {
-    include: [
-      {
-        model: sequelize.models.Materias,
-        as: 'inscritos',
-        through: { attributes: ['id'] },
-        attributes: ['id', 'nombre', 'grupo'],
-        include: [
-          {
-            association: 'horarios',
-            attributes: ['dia', 'horaInicio', 'horaFin'],
+  async findOneByMaterias(id) {
+    const estudiante = await sequelize.models.Estudiante.findByPk(id, {
+      include: [
+        {
+          model: sequelize.models.Materias,
+          as: 'inscritos',
+          through: {
+            where: { activo: true },
           },
-          {
-            association: 'profesor',
-            attributes: {
-              exclude: ['fechaNacimiento', 'createdAt', 'userId', 'activo']
+          attributes: ['id', 'nombre', 'grupo'],
+          include: [
+            {
+              association: 'horarios',
+              attributes: ['dia', 'horaInicio', 'horaFin'],
+            },
+            {
+              association: 'profesor',
+              attributes: {
+                exclude: ['fechaNacimiento', 'createdAt', 'userId', 'activo']
               }
-          },
-        ],
-      },
-    ],
-  });
+            },
+          ],
+        },
+      ],
+    });
 
-  if (!estudiante) {
-    throw boom.notFound('Estudiante no encontrado');
+    if (!estudiante) {
+      throw boom.notFound('Estudiante no encontrado');
+    }
+
+    return estudiante;
   }
-
-  return estudiante;
-}
 
   //Encontrar un estudiante segun su nombre o codigo estudiantil
   async findByNameOrCode(value, query) {

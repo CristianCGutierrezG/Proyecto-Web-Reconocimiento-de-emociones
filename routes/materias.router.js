@@ -344,6 +344,52 @@ router.post('/add-inscripcionToken',
 
 /**
  * @openapi
+ * /api/v1/materias/remove-inscripcionToken:
+ *  patch:
+ *    summary: Elimina la inscripción de un estudiante a una materia (activo=false) basado en el token del estudiante
+ *    tags: [Materia]
+ *    description: Usuarios con acceso [Estudiante]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              materiaId:
+ *                type: integer
+ *                description: ID de la materia de la que se desea retirar al estudiante
+ *    responses:
+ *      200:
+ *        description: Inscripción eliminada (activo=false)
+ *      401:
+ *        description: Unauthorized
+ *      404: 
+ *        description: Inscripción no encontrada
+ *      409:
+ *        description: Inscripción ya está inactiva
+ */
+router.patch('/remove-inscripcionToken',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('Estudiante'),
+  validatorHandler(addInscripcionSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { materiaId } = req.body;
+      const user = req.user;
+      const updatedInscripcion = await service.removeInscripcionToken(materiaId, user.sub);
+      res.status(200).json(updatedInscripcion);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * @openapi
  * /api/v1/materias/add-inscripcion:
  *  post:
  *    summary: Inscribe un estudiante a una materia con base al id del estudiante
@@ -381,6 +427,55 @@ router.post('/add-inscripcion',
     }
   }
 );
+
+/**
+ * @openapi
+ * /api/v1/materias/remove-inscripcion:
+ *  patch:
+ *    summary: Elimina la inscripción de un estudiante a una materia (activo=false) basado en los IDs de estudiante y materia
+ *    tags: [Materia]
+ *    description: Usuarios con acceso [Admin, Profesor]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              materiaId:
+ *                type: integer
+ *                description: ID de la materia de la que se desea retirar al estudiante
+ *              estudianteId:
+ *                type: integer
+ *                description: ID del estudiante que se desea retirar de la materia
+ *    responses:
+ *      200:
+ *        description: Inscripción eliminada (activo=false)
+ *      401:
+ *        description: Unauthorized
+ *      404: 
+ *        description: Inscripción no encontrada
+ *      409:
+ *        description: Inscripción ya está inactiva
+ */
+router.patch('/remove-inscripcion',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('Administrador', 'Profesor'),
+  validatorHandler(addInscripcionSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      const updatedInscripcion = await service.removeInscripcion(body);
+      res.status(200).json(updatedInscripcion);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 
 /**
  * @openapi
@@ -432,6 +527,49 @@ router.patch('/:id',
 
 /**
  * @openapi
+ * /api/v1/materias/deleteActive/{id}:
+ *  patch:
+ *    summary: Cambia el estado de una materia a inactiva (activo=false) y elimina los horarios relacionados
+ *    tags: [Materia]
+ *    description: Usuarios con acceso [Admin, Profesor]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        required: true
+ *        description: ID de la materia que se desea inactivar
+ *        schema:
+ *          type: integer
+ *    responses:
+ *      200:
+ *        description: Materia inactivada exitosamente (activo=false)
+ *      401:
+ *        description: Unauthorized
+ *      404: 
+ *        description: Materia no encontrada
+ *      409:
+ *        description: Materia ya está inactiva
+ */
+router.patch('/deleteActive/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('Administrador', 'Profesor'),
+  validatorHandler(getMateriasSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const updatedMateria = await service.updateToInactive(id);
+      res.status(200).json(updatedMateria);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+/**
+ * @openapi
  * /api/v1/materias/{id}:
  *  delete:
  *    summary: elimina una materia
@@ -475,8 +613,9 @@ router.delete('/:id',
     } catch (error) {
       next(error);
     }
-  }
+  } 
 );
+
 
 export { router };
 

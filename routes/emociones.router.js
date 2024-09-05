@@ -76,26 +76,19 @@ router.post('/',
  * @openapi
  * /api/v1/emociones:
  *  get:
- *    summary: Encuentra las emociones de todos los estudiantes en un rango de fechas
+ *    summary: Encuentra las emociones de todos los estudiantes en un rango de fechas para una materia específica
  *    tags: [Emociones]
  *    security:
  *      - ApiKeyAuth: []
  *      - BearerAuth: []
  *    parameters:
  *      - in: query
- *        name: limit
- *        description: Número de items a recibir
+ *        name: id
+ *        description: ID de la materia para la que se buscan las emociones
  *        schema:
  *          type: integer
  *          minimum: 0
- *          default: 20
- *      - in: query
- *        name: offset
- *        description: El punto de inicio de los datos
- *        schema:
- *          type: integer
- *          minimum: 0
- *          default: 0
+ *          required: true
  *      - in: query
  *        name: startDate
  *        description: Fecha de inicio del rango (YYYY-MM-DD)
@@ -110,7 +103,7 @@ router.post('/',
  *          format: date
  *    responses:
  *      200:
- *        description: Las emociones de todos los estudiantes en el rango de fechas
+ *        description: Las emociones de todos los estudiantes en el rango de fechas para la materia especificada
  *        content:
  *          application/json:
  *            schema:
@@ -119,14 +112,23 @@ router.post('/',
  *                $ref: '#/components/schemas/Emociones'
  *      401:
  *        description: Unauthorized
+ *      404:
+ *        description: Materia no encontrada
  */
 router.get(
   '/',
   passport.authenticate('jwt', { session: false }),
-  checkRoles('Administrador'),
+  checkRoles('Administrador', 'Profesor'),
   async (req, res, next) => {
     try {
-      const emociones = await service.find(req.query);
+      const { id, startDate, endDate } = req.query;
+
+      // Validar parámetros
+      if (!id) {
+        return res.status(400).json({ error: 'ID de la materia es requerido' });
+      }
+
+      const emociones = await service.findEmocionesByMateria(id, startDate, endDate);
       res.json(emociones);
     } catch (error) {
       next(error);
