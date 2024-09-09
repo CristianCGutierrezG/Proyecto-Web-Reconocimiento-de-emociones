@@ -33,16 +33,30 @@ class AuthService {
   }
 
   //asigna el token dependiendo del rol del usuario que ingresa
-  signToken(user) {
+   signToken(user) {
     const payload = {
       sub: user.id,
       role: user.role,
     };
-    const token = jwt.sign(payload, config.jwtSecret);
+    const token = jwt.sign(payload, config.jwtSecret, {
+      expiresIn: '1h',
+    });
     return {
       user,
       token,
     };
+  }
+
+  //método para recuperar el token
+  async recoverToken(userId) {
+    const user = await service.findOne(userId);
+    if (!user) {
+      throw boom.unauthorized();
+    }
+
+    const tokenData = this.signToken(user);
+    
+    return tokenData; 
   }
 
   //Envio del link de recuperacion de contraseña al correo especificado

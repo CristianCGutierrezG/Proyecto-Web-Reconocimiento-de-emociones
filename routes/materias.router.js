@@ -434,7 +434,7 @@ router.post('/add-inscripcion',
  *  patch:
  *    summary: Elimina la inscripción de un estudiante a una materia (activo=false) basado en los IDs de estudiante y materia
  *    tags: [Materia]
- *    description: Usuarios con acceso [Admin, Profesor]
+ *    description: Usuarios con acceso [Administrador, Profesor]
  *    security:
  *      - ApiKeyAuth: []
  *      - BearerAuth: []
@@ -531,7 +531,7 @@ router.patch('/:id',
  *  patch:
  *    summary: Cambia el estado de una materia a inactiva (activo=false) y elimina los horarios relacionados
  *    tags: [Materia]
- *    description: Usuarios con acceso [Admin, Profesor]
+ *    description: Usuarios con acceso [Administrador, Profesor]
  *    security:
  *      - ApiKeyAuth: []
  *      - BearerAuth: []

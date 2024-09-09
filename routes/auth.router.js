@@ -2,7 +2,7 @@ import express  from 'express';
 import passport from 'passport';
 import { AuthService } from '../services/auth.service.js';
 import { validatorHandler } from '../middlewares/validator.handler.js'; 
-import { loginAuthSchema, recoveryAuthSchema, changePasswordAuthSchema } from '../schemas/auth.schema.js';
+import { loginAuthSchema, recoverTokenSchema, recoveryAuthSchema, changePasswordAuthSchema } from '../schemas/auth.schema.js';
 
 /** 
  * Define los diferentes rutas o endpoint para la autentificacion y cambio de contraseña
@@ -35,6 +35,30 @@ const service = new AuthService();
  *      example:
  *        email: user@email.com
  *        password: password123
+ *    RecoverToken:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: integer
+ *          description: ID del usuario para el cual se va a generar un nuevo token.
+ *      required:
+ *        - id
+ *    TokenResponse:
+ *      type: object
+ *      properties:
+ *        user:
+ *          type: object
+ *          description: Información del usuario autenticado
+ *          properties:
+ *             id:
+ *               type: integer
+ *             email:
+ *               type: string
+ *             role:
+ *               type: string
+ *             token:
+ *               type: string
+ *               description: Nuevo token de autenticación generado
  *    recovery:
  *      type: object
  *      properties:
@@ -97,6 +121,48 @@ router.post(
     try {
       const user = req.user;
       res.json(service.signToken(user));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * @openapi
+ * /api/v1/auth/recover-token:
+ *  post:
+ *    summary: Recuperar el token de usuario
+ *    tags: [Auth]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            $ref: '#/components/schemas/RecoverToken'
+ *    responses:
+ *      200:
+ *        description: Token recuperado exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#/components/schemas/TokenResponse'
+ *      401:
+ *        description: Unauthorized
+ */
+router.post(
+  '/recover-token',
+  passport.authenticate('jwt', {session: false}),
+  validatorHandler(recoverTokenSchema, 'body'), 
+  async (req, res, next) => {
+    try {
+      const { id } = req.body; 
+      const tokenData = await service.recoverToken(id); 
+      res.json(tokenData); 
     } catch (error) {
       next(error);
     }

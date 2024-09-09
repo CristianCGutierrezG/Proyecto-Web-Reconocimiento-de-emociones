@@ -9,11 +9,16 @@ const email = Joi.string().email();
 const password = Joi.string().min(8);
 const newPassword = Joi.string().min(8);
 const token = Joi.string().regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/);
+const id = Joi.number().integer();
 
 //Schema para el inicio de sesion de un usuario
 const loginAuthSchema = Joi.object({
   email: email.required(),
   password: password.required(),
+});
+
+const recoverTokenSchema = Joi.object({
+  id: id.required(),
 });
 
 //Schema para envio de link para recuperar contraseña
@@ -27,4 +32,4 @@ const changePasswordAuthSchema = Joi.object({
   newPassword: newPassword.required(),
 });
 
-export { loginAuthSchema, recoveryAuthSchema, changePasswordAuthSchema };
+export { loginAuthSchema, recoverTokenSchema, recoveryAuthSchema, changePasswordAuthSchema };
