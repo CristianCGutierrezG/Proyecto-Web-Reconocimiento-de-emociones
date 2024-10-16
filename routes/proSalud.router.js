@@ -138,7 +138,7 @@ const service = new ProSaludService();
  */
 router.get('/',
   passport.authenticate('jwt', {session: false}),
-  checkRoles('Administrador'),
+  checkRoles('Administrador', 'Profesor', 'Estudiante'),
   validatorHandler(queryProSaludSchema, 'params'),
   async (req, res, next) => {
     try {

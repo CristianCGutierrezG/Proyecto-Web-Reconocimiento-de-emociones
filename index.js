@@ -32,11 +32,7 @@ passport.use(LocalStrategy);
 passport.use(JwtStrategy);
 
 app.get('/', (req, res) => {
-  res.send('Hola mi server en express');
-});
-
-app.get('/nueva-ruta',checkApiKey, (req, res) => {
-  res.send('Hola mi server en express');
+  res.send('Server en expreess funcionando');
 });
 
 routerApi(app);

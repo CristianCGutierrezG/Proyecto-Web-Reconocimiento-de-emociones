@@ -74,7 +74,7 @@ router.post('/',
 
 /**
  * @openapi
- * /api/v1/emociones:
+ * /api/v1/emociones/materia:
  *  get:
  *    summary: Encuentra las emociones de todos los estudiantes en un rango de fechas para una materia específica
  *    tags: [Emociones]
@@ -116,7 +116,7 @@ router.post('/',
  *        description: Materia no encontrada
  */
 router.get(
-  '/',
+  '/materia',
   passport.authenticate('jwt', { session: false }),
   checkRoles('Administrador', 'Profesor'),
   async (req, res, next) => {
@@ -135,5 +135,65 @@ router.get(
     }
   }
 );
+
+
+/**
+ * @openapi
+ * /api/v1/emociones:
+ *  get:
+ *    summary: Encuentra las emociones de todos los estudiantes en un rango de fechas
+ *    tags: [Emociones]
+ *    security:
+ *      - ApiKeyAuth: []
+ *      - BearerAuth: []
+ *    parameters:
+ *      - in: query
+ *        name: startDate
+ *        description: Fecha de inicio del rango (YYYY-MM-DD)
+ *        schema:
+ *          type: string
+ *          format: date
+ *          required: true
+ *      - in: query
+ *        name: endDate
+ *        description: Fecha de fin del rango (YYYY-MM-DD)
+ *        schema:
+ *          type: string
+ *          format: date
+ *          required: true
+ *    responses:
+ *      200:
+ *        description: Las emociones de todos los estudiantes en el rango de fechas
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Emociones'
+ *      401:
+ *        description: Unauthorized
+ */
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('Administrador', 'Profesional de salud'),
+  async (req, res, next) => {
+    try {
+      const { startDate, endDate } = req.query;
+
+      // Validar que las fechas estén presentes
+      if (!startDate || !endDate) {
+        return res.status(400).json({ error: 'Las fechas de inicio y fin son requeridas' });
+      }
+
+      const emociones = await service.findEmocionesByFecha(startDate, endDate);
+      res.json(emociones);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
 
 export { router };
