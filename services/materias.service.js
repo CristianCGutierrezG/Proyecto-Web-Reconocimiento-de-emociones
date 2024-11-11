@@ -389,43 +389,38 @@ async createProfesor(data, userId) {
     return materias;
   }
 
- async update(id, changes) {
-  const materia = await this.findOne(id);
-
-  // Verificar si hay cambios en nombre o grupo
-  if (changes.nombre || changes.grupo) {
-    const existingMateria = await sequelize.models.Materias.findOne({
-      where: {
-        [Op.or]: [
-          { nombre: changes.nombre },
-          { grupo: changes.grupo },
-        ],
-        id: { [Op.ne]: id } // Excluir la materia actual de la búsqueda
+  async update(id, changes) {
+    const materia = await this.findOne(id);
+  
+    // Verificar si hay cambios en nombre o grupo
+    if (changes.nombre && changes.grupo) {
+      const existingMateria = await sequelize.models.Materias.findOne({
+        where: {
+          nombre: changes.nombre,
+          grupo: changes.grupo,
+          id: { [Op.ne]: id }, 
+        },
+      });
+  
+      if (existingMateria) {
+        throw new Error(`Ya existe una materia con el nombre "${changes.nombre}" y grupo "${changes.grupo}".`);
       }
-    });
-
-    if (existingMateria) {
-      throw new Error('Ya existe una materia con el mismo nombre o grupo.');
     }
+  
+    const updatedMateria = await materia.update(changes);
+  
+    if (changes.horarios) {
+      await sequelize.models.Horarios.destroy({ where: { materiaId: id } });
+  
+      const horariosData = changes.horarios.map((horario) => ({
+        ...horario,
+        materiaId: id,
+      }));
+      await sequelize.models.Horarios.bulkCreate(horariosData);
+    }
+  
+    return updatedMateria;
   }
-
-  // Actualizar la materia
-  const updatedMateria = await materia.update(changes);
-
-  // Si hay cambios en los horarios, primero eliminamos los horarios existentes
-  if (changes.horarios) {
-    await sequelize.models.Horarios.destroy({ where: { materiaId: id } });
-
-    // Crear los nuevos horarios
-    const horariosData = changes.horarios.map(horario => ({
-      ...horario,
-      materiaId: id,
-    }));
-    await sequelize.models.Horarios.bulkCreate(horariosData);
-  }
-
-  return updatedMateria;
-}
 
   // Cambia el campo "activo" de una materia a false y elimina los horarios relacionados
   async updateToInactive(id) {
