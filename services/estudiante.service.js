@@ -162,32 +162,35 @@ class EstudiantesService {
 
   //Encontrar un estudiante segun su nombre o codigo estudiantil
   async findByNameOrCode(value, query) {
-    // Separar el value en palabras
-    const values = value.split(' ');
-
-    // Construir la condición de búsqueda
-    let searchConditions = [];
-    if (values.length > 1) {
-      searchConditions = values.map((v) => ({
-        [Op.or]: [
-          { nombres: { [Op.like]: `%${v}%` } },
-          { apellidos: { [Op.like]: `%${v}%` } },
-          { codigoInstitucional: { [Op.like]: `%${v}%` } },
+    // Convertimos el valor de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas.
+    const searchValue = value.toLowerCase();
+  
+    // Configuramos las condiciones de búsqueda utilizando ILIKE (para PostgreSQL).
+    let searchConditions;
+  
+    // Si el valor contiene un espacio, asumimos que es "nombre apellido"
+    if (searchValue.includes(' ')) {
+      const [firstName, lastName] = searchValue.split(' ');
+      searchConditions = {
+        [Op.and]: [
+          { nombres: { [Op.iLike]: `%${firstName}%` } },
+          { apellidos: { [Op.iLike]: `%${lastName}%` } },
         ],
-      }));
+      };
     } else {
-      searchConditions = [
-        { nombres: { [Op.like]: `%${value}%` } },
-        { apellidos: { [Op.like]: `%${value}%` } },
-        { codigoInstitucional: { [Op.like]: `%${value}%` } },
-      ];
+      // Búsqueda por nombre, apellido o código
+      searchConditions = {
+        [Op.or]: [
+          { nombres: { [Op.iLike]: `%${searchValue}%` } },
+          { apellidos: { [Op.iLike]: `%${searchValue}%` } },
+          { codigoInstitucional: { [Op.iLike]: `%${searchValue}%` } },
+        ],
+      };
     }
-
-    // Construir opciones de consulta
+  
+    // Configuración de opciones para la búsqueda, incluyendo el ordenamiento
     const options = {
-      where: {
-        [Op.or]: searchConditions,
-      },
+      where: searchConditions,
       include: [
         {
           model: sequelize.models.User,
@@ -195,23 +198,41 @@ class EstudiantesService {
           attributes: ['id', 'email', 'role'],
         },
       ],
+      order: [['nombres', 'ASC'], ['apellidos', 'ASC']], // Ordenar alfabéticamente por nombre y apellido
     };
-
+  
+    // Obtenemos el número total de resultados antes de la paginación
+    const totalResults = await sequelize.models.Estudiante.count(options);
+  
+    // Aplicamos la paginación si se proporciona
     const { limit, offset } = query;
     if (limit && offset) {
       options.limit = parseInt(limit, 10);
       options.offset = parseInt(offset, 10);
     }
-
-    // Búsqueda
+  
+    // Realizamos la búsqueda con paginación
     const estudiantes = await sequelize.models.Estudiante.findAll(options);
-
+  
+    // Validamos si se encontraron resultados
     if (estudiantes.length === 0) {
       throw boom.notFound('Estudiante no encontrado');
     }
-
-    return estudiantes;
+  
+    // Incluimos la metadata con el conteo total de resultados
+    return {
+      data: estudiantes,
+      metadata: {
+        total: totalResults,
+        count: estudiantes.length,
+        limit: limit ? parseInt(limit, 10) : null,
+        offset: offset ? parseInt(offset, 10) : null,
+      },
+    };
   }
+  
+  
+  
 
   //Actualizar la info de un estudiante
   async update(id, changes) {

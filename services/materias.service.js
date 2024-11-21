@@ -331,34 +331,25 @@ async createProfesor(data, userId) {
   }
 
   async findByNameOrProfessor(value, query) {
-    const values = value.split(' ');
-
-    let searchConditions = [];
-    if (values.length > 1) {
-      searchConditions = values.map((v) => ({
-        [Op.or]: [
-          { nombre: { [Op.like]: `%${v}%` } },
-          { '$profesor.nombres$': { [Op.like]: `%${v}%` } },
-          { '$profesor.apellidos$': { [Op.like]: `%${v}%` } },
-        ],
-      }));
-    } else {
-      searchConditions = {
-        [Op.or]: [
-          { nombre: { [Op.like]: `%${value}%` } },
-          { '$profesor.nombres$': { [Op.like]: `%${value}%` } },
-          { '$profesor.apellidos$': { [Op.like]: `%${value}%` } },
-        ],
-      };
-    }
-
+    // Convertimos el valor de búsqueda a minúsculas para una búsqueda insensible a mayúsculas.
+    const searchValue = value.toLowerCase();
+  
+    // Configuramos las condiciones de búsqueda utilizando ILIKE (para PostgreSQL).
+    const searchConditions = {
+      [Op.or]: [
+        { nombre: { [Op.iLike]: `%${searchValue}%` } },
+        { '$profesor.nombres$': { [Op.iLike]: `%${searchValue}%` } },
+        { '$profesor.apellidos$': { [Op.iLike]: `%${searchValue}%` } },
+      ],
+    };
+  
+    // Configuración de opciones de búsqueda.
     const options = {
       where: {
         [Op.and]: [
-          { activo: true }, 
-          { [Op.or]: searchConditions },
+          { activo: true },
+          searchConditions,
         ],
-  
       },
       include: [
         {
@@ -372,22 +363,39 @@ async createProfesor(data, userId) {
         },
       ],
       subQuery: false,
+      order: [['nombre', 'ASC']], // Ordenamos alfabéticamente por nombre
     };
-
+  
+    // Obtenemos el número total de resultados sin aplicar paginación.
+    const totalResults = await sequelize.models.Materias.count(options);
+  
+    // Aplicamos la paginación si se proporciona.
     const { limit, offset } = query;
     if (limit && offset) {
       options.limit = limit;
       options.offset = offset;
     }
-
+  
+    // Realizamos la búsqueda con paginación.
     const materias = await sequelize.models.Materias.findAll(options);
-
+  
+    // Validamos si se encontraron resultados.
     if (materias.length === 0) {
       throw boom.notFound('Materia no encontrada');
     }
-
-    return materias;
+  
+    // Incluimos la metadata con el conteo total de resultados.
+    return {
+      data: materias,
+      metadata: {
+        total: totalResults,
+        count: materias.length,
+        limit: limit || null,
+        offset: offset || null,
+      },
+    };
   }
+  
 
   async update(id, changes) {
     const materia = await this.findOne(id);
